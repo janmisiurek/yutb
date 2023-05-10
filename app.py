@@ -17,9 +17,7 @@ def verify_password(username, password):
     correct_username = os.getenv("YUTB_USERNAME")
     correct_password = os.getenv("YUTB_PASSWORD")
 
-    if username == correct_username and password == correct_password:
-        return True
-    return False
+    return (username == correct_username and password == correct_password)
 
 @app.route('/', methods=['GET', 'POST'])
 @auth.login_required
