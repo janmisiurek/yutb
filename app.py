@@ -54,15 +54,28 @@ def result(filename):
 
     return render_template('result.html', filename=filename, transcript=transcript_text, transcript_filename=transcript_filename)
 
-@app.route('/download/<filename>')
+@app.route('/download/<path:folder>/<path:filename>')
 @auth.login_required
-def download_file(filename):
+def download_file(folder, filename):
     
-    file_storage_path = os.path.join(app.root_path, 'download')
+    file_storage_path = os.path.join(app.root_path, folder)
     try:
         return send_from_directory(file_storage_path, filename, as_attachment=True)
     except FileNotFoundError:
         abort(404, "File not found")
+
+
+@app.route('/dashboard')
+@auth.login_required
+def dashboard():
+    audio_folder = os.path.join(app.root_path, 'download')
+    transcription_folder = os.path.join(app.root_path, 'transcriptions')
+    
+    audio_files = os.listdir(audio_folder)
+    transcription_files = os.listdir(transcription_folder)
+
+    return render_template('dashboard.html', audio_files=audio_files, transcription_files=transcription_files)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

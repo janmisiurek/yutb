@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Dashboard</h1>
+    <h2>Pliki audio</h2>
+    <ul>
+        {% for file in audio_files %}
+        <li>
+            <a href="{{ url_for('download_file', folder='download', filename=file) }}">{{ file }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+    <h2>Transkrypcje</h2>
+    <ul>
+        {% for file in transcription_files %}
+        <li>
+            <a href="{{ url_for('download_file', folder='transcriptions', filename=file) }}">{{ file }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+    <p>
+        <a href="{{ url_for('index') }}">Powrót do strony głównej</a>
+    </p>
+</body>
+</html>
