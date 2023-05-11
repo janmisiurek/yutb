@@ -10,5 +10,13 @@
     <p>
         Plik do pobrania: <a href="{{ url_for('download_file', filename=filename) }}">{{ filename }}</a>
     </p>
+    <h2>Transkrypcja</h2>
+    <p>{{ transcript }}</p>
+    <p>
+        Plik z transkrypcją do pobrania: <a href="{{ url_for('download_file', filename=transcript_filename) }}">{{ transcript_filename }}</a>
+    </p>
+    <p>
+        <a href="{{ url_for('index') }}">Powrót do strony głównej</a>
+    </p>
 </body>
 </html>
