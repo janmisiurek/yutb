@@ -1,9 +1,12 @@
 import openai
 import os
 from dotenv import load_dotenv
+from rq.decorators import job
+from worker import conn
 
 load_dotenv()
 
+@job('default', connection=conn, timeout=3600)
 def transcript(audio_file_path, root_path):
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
     audio_file = open(audio_file_path, "rb")
