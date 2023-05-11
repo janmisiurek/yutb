@@ -7,10 +7,12 @@ from openai_utils import transcript
 from rq import Queue
 from worker import conn
 from rq.job import Job
+import redis
 
 load_dotenv()
 
-q = Queue(connection=conn)
+q = Queue(connection=redis.from_url(os.getenv('REDIS_URL')))
+
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
