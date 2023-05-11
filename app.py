@@ -3,8 +3,7 @@ from flask_httpauth import HTTPBasicAuth
 from dotenv import load_dotenv
 import os
 from youtube_utils import download_audio
-
-
+from openai_utils import transcript
 load_dotenv()
 
 app = Flask(__name__)
@@ -42,13 +41,18 @@ def index():
 def result(filename):
     
     file_storage_path = os.path.join(app.root_path, 'download')
-
     file_path = os.path.join(file_storage_path, filename)
     if not os.path.exists(file_path):
         return abort(404, 'File not found')
 
-    return render_template('result.html', filename=filename)
+    try:
+        transcript_text, transcript_file_path = transcript(file_path, app.root_path)
+    except Exception as e:
+        return abort(500, f"Error transcribing audio: {str(e)}")
 
+    transcript_filename = os.path.basename(transcript_file_path)
+
+    return render_template('result.html', filename=filename, transcript=transcript_text, transcript_filename=transcript_filename)
 
 @app.route('/download/<filename>')
 @auth.login_required
