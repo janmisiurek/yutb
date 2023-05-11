@@ -8,12 +8,12 @@
 <body>
     <h1>Wynik</h1>
     <p>
-        Plik do pobrania: <a href="{{ url_for('download_file', filename=filename) }}">{{ filename }}</a>
+        Plik do pobrania: <a href="{{ url_for('download_file', folder='download', filename=filename) }}">{{ filename }}</a>
     </p>
     <h2>Transkrypcja</h2>
     <p>{{ transcript }}</p>
     <p>
-        Plik z transkrypcją do pobrania: <a href="{{ url_for('download_file', filename=transcript_filename) }}">{{ transcript_filename }}</a>
+        Plik z transkrypcją do pobrania: <a href="{{ url_for('download_file', folder='transcriptions', filename=transcript_filename) }}">{{ transcript_filename }}</a>
     </p>
     <p>
         <a href="{{ url_for('index') }}">Powrót do strony głównej</a>
