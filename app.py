@@ -45,29 +45,23 @@ def job_status(job_id):
 
     if job.is_finished:
         filename = os.path.basename(job.result)
-        return redirect(url_for('result', filename=filename))
+        transcribe_job = q.enqueue(transcript, job.result, app.root_path)
+        return redirect(url_for('transcribe_status', job_id=transcribe_job.get_id()))
     else:
-        return "Nay, job hasn't finished", 202
+        return render_template('job_status.html', job_status="Job is in progress: downloading audio")
 
-@app.route('/result/<filename>')
+@app.route("/transcribe/<job_id>", methods=['GET'])
 @auth.login_required
-def result(filename):
-    file_storage_path = os.path.join(app.root_path, 'download')
-    file_path = os.path.join(file_storage_path, filename)
-    if not os.path.exists(file_path):
-        return abort(404, 'File not found')
+def transcribe_status(job_id):
+    job = Job.fetch(job_id, connection=conn)
 
-    try:
-        job = q.enqueue(transcript, file_path, app.root_path)
-        while not job.is_finished:
-            pass
+    if job.is_finished:
         transcript_text, transcript_file_path = job.result
-    except Exception as e:
-        return abort(500, f"Error transcribing audio: {str(e)}")
+        transcript_filename = os.path.basename(transcript_file_path)
+        return render_template('result.html', filename=transcript_filename, transcript=transcript_text, transcript_filename=transcript_filename)
+    else:
+        return render_template('job_status.html', job_status="Job is in progress: transcribing audio")
 
-    transcript_filename = os.path.basename(transcript_file_path)
-
-    return render_template('result.html', filename=filename, transcript=transcript_text, transcript_filename=transcript_filename)
 
 @app.route('/download/<path:folder>/<path:filename>')
 @auth.login_required
