@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Dashboard</h1>
+    <h2>Transkrypcje</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>YT URL</th>
+                <th>Audio URL</th>
+                <th>Transcription URL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transcription in transcriptions %}
+            <tr>
+                <td>{{ transcription.id }}</td>
+                <td>{{ transcription.name }}</td>
+                <td><a href="{{ transcription.yt_url }}">{{ transcription.yt_url }}</a></td>
+                <td><a href="{{ url_for('download_file', folder='', filename=transcription.audio_url) }}">Download Audio</a></td>
+                <td><a href="{{ url_for('download_file', folder='', filename=transcription.transcript_url) }}">Download Transcription</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>
+        <a href="{{ url_for('index') }}">Powrót do strony głównej</a>
+    </p>
+</body>
+</html>
