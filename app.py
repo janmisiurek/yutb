@@ -46,11 +46,11 @@ def index():
             logging.info(f'Added download_audio job with id: {download_job.id}')
             
             logging.info('Adding transcript job...')
-            transcript_job = q.enqueue(transcript, depends_on=download_job.result)
+            transcript_job = q.enqueue(transcript, depends_on=download_job)
             logging.info(f'Added transcript job with id: {transcript_job.id}')
             
             logging.info('Adding add_to_database job...')
-            db_job = q.enqueue(add_to_database, depends_on=transcript_job.result)
+            db_job = q.enqueue(add_to_database, depends_on=transcript_job)
             logging.info(f'Added add_to_database job with id: {db_job.id}')
             
         except Exception as e:
