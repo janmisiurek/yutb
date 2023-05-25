@@ -5,6 +5,11 @@ import os
 import yt_dlp
 
 
+
+import os
+import yt_dlp
+from rq.decorators import job
+
 @job('default', connection=conn, timeout=3600)
 def download_audio(url):
     output_dir = 'download'
@@ -17,25 +22,20 @@ def download_audio(url):
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
+            'preferredquality': '192',
+            'nopostoverwrites': False,
         }],
     }
 
     # Download the audio
     with yt_dlp.YoutubeDL(options) as ydl:
         info_dict = ydl.extract_info(url, download=True)
-        filename = ydl.prepare_filename(info_dict)
-    
-    # Change filename to match original function
-    output_file = os.path.join(output_dir, info_dict['id'] + '.mp3')
-
-    if filename != output_file:
-        os.rename(filename, output_file)
+        output_file = ydl.prepare_filename(info_dict)
 
     print('sending file to s3')
     output_s3_key = os.path.join(output_dir, info_dict['id'] + '.mp3')
-    
+
     # Upload file to S3
     upload_to_s3(output_file, 'wiadroborka', object_name=output_s3_key)
 
     return output_file, url
-
