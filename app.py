@@ -10,6 +10,8 @@ from worker import conn
 from rq.job import Job
 from models import db, Transcription
 from tasks import add_to_database
+import logging
+from rq import get_current_job
 
 load_dotenv()
 
@@ -39,10 +41,20 @@ def index():
             return abort(400, 'No URL provided')
 
         try:
+            logging.info(f'Adding download_audio job for url: {url}')
             download_job = q.enqueue(download_audio, url)
+            logging.info(f'Added download_audio job with id: {download_job.id}')
+            
+            logging.info('Adding transcript job...')
             transcript_job = q.enqueue(transcript, depends_on=download_job)
+            logging.info(f'Added transcript job with id: {transcript_job.id}')
+            
+            logging.info('Adding add_to_database job...')
             db_job = q.enqueue(add_to_database, depends_on=transcript_job)
+            logging.info(f'Added add_to_database job with id: {db_job.id}')
+            
         except Exception as e:
+            logging.error(f"Error downloading audio: {str(e)}")
             return abort(400, f"Error downloading audio: {str(e)}")
 
         return redirect(url_for('job_status', job_id=db_job.get_id()))
