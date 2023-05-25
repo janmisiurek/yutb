@@ -3,12 +3,7 @@ from worker import conn
 from aws_utils import upload_to_s3
 import os
 import yt_dlp
-
-
-
-import os
-import yt_dlp
-from rq.decorators import job
+import openai_utils
 
 @job('default', connection=conn, timeout=3600)
 def download_audio(url):
@@ -38,5 +33,11 @@ def download_audio(url):
 
     # Upload file to S3
     upload_to_s3(output_file, 'wiadroborka', object_name=output_s3_key)
+
+    # Call transcript job
+    audio_file_path = output_file  # this is the path to the downloaded audio file
+    yt_url = url  # this is the url of the Youtube video
+    root_path = '/app'  # replace with your root path if different
+    openai_utils.transcript.queue(audio_file_path, yt_url, root_path)
 
     return output_file, url
