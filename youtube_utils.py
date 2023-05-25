@@ -30,12 +30,11 @@ def download_audio(url):
     # Download the audio
     with yt_dlp.YoutubeDL(options) as ydl:
         info_dict = ydl.extract_info(url, download=True)
-        output_file = ydl.prepare_filename(info_dict)
+        # Prepare the output file name by replacing the extension with .mp3
+        output_file = ydl.prepare_filename(info_dict).replace('.webm', '.mp3')
 
     print('sending file to s3')
     output_s3_key = os.path.join(output_dir, info_dict['id'] + '.mp3')
-
-    print(f"Current working directory: {os.getcwd()}")
 
     # Upload file to S3
     upload_to_s3(output_file, 'wiadroborka', object_name=output_s3_key)
