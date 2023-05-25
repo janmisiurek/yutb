@@ -8,7 +8,8 @@ import os
 q = Queue(connection=conn)
 
 @job('default', connection=conn, timeout=3600)
-def add_to_database(transcript_text, transcript_file_path, audio_file_path, yt_url):
+def add_to_database(transcript_output):
+    transcript_text, transcript_file_path, audio_file_path, yt_url = transcript_output
     name_without_extension = os.path.splitext(os.path.basename(transcript_file_path))[0]
     name_without_extension = os.path.splitext(name_without_extension)[0]
 

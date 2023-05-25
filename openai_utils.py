@@ -12,7 +12,8 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 
 @job('default', connection=conn, timeout=3600)
-def transcript(audio_file_path, yt_url, root_path):
+def transcript(download_audio_output):
+    audio_file_path, yt_url = download_audio_output
     audio_file = open(audio_file_path, "rb")
     transcript_data = openai.Audio.transcribe("whisper-1", audio_file, OPENAI_API_KEY)
     text = transcript_data['text']
