@@ -15,8 +15,9 @@ def download_audio(url):
     # Extract filename from the full file path
     output_file_name = os.path.basename(output_file)
     output_s3_key = os.path.join(output_dir, output_file_name)
-
+    print('sending file to s3')
     # Upload file to S3
     upload_to_s3(output_file, 'wiadroborka', object_name=output_s3_key)
 
     return output_file, url
+
