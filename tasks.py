@@ -1,4 +1,11 @@
+from rq import Queue
+from rq.decorators import job
+from worker import conn
+from models import db, Transcription
+from flask import current_app
+import os
 
+q = Queue(connection=conn)
 
 @job('default', connection=conn, timeout=3600)
 def add_to_database(transcript_text, transcript_file_path, audio_file_path, yt_url):
@@ -12,7 +19,7 @@ def add_to_database(transcript_text, transcript_file_path, audio_file_path, yt_u
         transcript_url=transcript_file_path
     )
 
-    with app.app_context():
+    with current_app.app_context():
         db.session.add(record)
         db.session.commit()
         

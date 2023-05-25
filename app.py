@@ -9,7 +9,7 @@ from rq import Queue
 from worker import conn
 from rq.job import Job
 from models import db, Transcription
-from rq.decorators import job
+from tasks import add_to_database
 
 load_dotenv()
 
@@ -61,24 +61,6 @@ def job_status(job_id):
     else:
         return "Job is still in progress"
 
-
-#job('default', connection=conn, timeout=3600)
-def add_to_database(transcript_text, transcript_file_path, audio_file_path, yt_url):
-    name_without_extension = os.path.splitext(os.path.basename(transcript_file_path))[0]
-    name_without_extension = os.path.splitext(name_without_extension)[0]
-
-    record = Transcription(
-        name=name_without_extension,
-        yt_url=yt_url, 
-        audio_url='download/' + name_without_extension + '.mp4', 
-        transcript_url=transcript_file_path
-    )
-
-    with app.app_context():
-        db.session.add(record)
-        db.session.commit()
-        
-    return transcript_text, transcript_file_path, audio_file_path, yt_url
 
 
 @app.route('/download/<path:folder>/<path:filename>')
