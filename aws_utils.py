@@ -9,8 +9,6 @@ ACCESS_KEY = os.getenv("ACCESS_KEY")
 SECRET_KEY= os.getenv("SECRET_KEY")
 
 def upload_to_s3(file_name, bucket, object_name=None):
-    print("ACCESS_KEY:", ACCESS_KEY)
-    print("SECRET_KEY:", SECRET_KEY)
 
     s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY,
                       aws_secret_access_key=SECRET_KEY)

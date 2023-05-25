@@ -10,18 +10,17 @@ ACCESS_KEY = os.getenv("ACCESS_KEY")
 SECRET_KEY= os.getenv("SECRET_KEY")
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
+
 @job('default', connection=conn, timeout=3600)
 def transcript(audio_file_path, yt_url, root_path):
-    
     audio_file = open(audio_file_path, "rb")
     transcript_data = openai.Audio.transcribe("whisper-1", audio_file, OPENAI_API_KEY)
     text = transcript_data['text']
 
-    # Nazwa pliku na S3
     transcription_file_path = 'transcriptions/' + os.path.basename(audio_file_path) + '.txt'
 
-    # Zapisz transkrypcję do S3
     s3 = boto3.resource('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
     s3.Object('wiadroborka', transcription_file_path).put(Body=text)
-        
-    return text, transcription_file_path, yt_url
+
+    # Zwróć audio_file_path i yt_url wraz z innymi danymi
+    return text, transcription_file_path, audio_file_path, yt_url
