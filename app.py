@@ -15,6 +15,7 @@ from rq import get_current_job
 import time
 
 load_dotenv()
+BUCKET_NAME = os.getenv('BUCKET_NAME')
 
 q = Queue(connection=conn)
 
@@ -90,7 +91,7 @@ def job_status(job_id):
 @auth.login_required
 def download_file(folder, filename):
     file_path = os.path.join(folder, filename)
-    presigned_url = create_presigned_url('wiadroborka', file_path)
+    presigned_url = create_presigned_url(BUCKET_NAME, file_path)
 
     if presigned_url is None:
         abort(404, "File not found")
@@ -100,7 +101,7 @@ def download_file(folder, filename):
 @app.route('/dashboard')
 @auth.login_required
 def dashboard():
-    files = list_files('wiadroborka')
+    files = list_files(BUCKET_NAME)
 
     audio_files = [file for file in files if file.startswith('download/')]
     transcription_files = [file for file in files if file.startswith('transcriptions/')]
