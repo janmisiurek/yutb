@@ -6,8 +6,9 @@ from worker import conn
 import boto3
 
 load_dotenv()
-ACCESS_KEY = os.getenv("ACCESS_KEY")
-SECRET_KEY= os.getenv("SECRET_KEY")
+S3_ACCESS_KEY = os.getenv("S3_ACCESS_KEY")
+S3_SECRET_KEY = os.getenv("S3_SECRET_KEY")
+BUCKET_NAME = os.getenv('BUCKET_NAME')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 
@@ -20,8 +21,8 @@ def transcript(download_audio_output):
 
     transcription_file_path = 'transcriptions/' + os.path.basename(audio_file_path) + '.txt'
 
-    s3 = boto3.resource('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
-    s3.Object('wiadroborka', transcription_file_path).put(Body=text)
+    s3 = boto3.resource('s3', aws_access_key_id=S3_ACCESS_KEY, aws_secret_access_key=S3_SECRET_KEY)
+    s3.Object(BUCKET_NAME, transcription_file_path).put(Body=text)
 
-    # Zwróć audio_file_path i yt_url wraz z innymi danymi
+
     return text, transcription_file_path, audio_file_path, yt_url
