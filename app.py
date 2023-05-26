@@ -46,21 +46,17 @@ def index():
             logging.info(f'Adding download_audio job for url: {url}')
             download_job = q.enqueue(download_audio, url)
             logging.info(f'Added download_audio job with id: {download_job.id}')
-            # Wait for the job to finish
             while not download_job.is_finished:
-                time.sleep(1)  # Sleep for a while before checking again
+                time.sleep(1) 
             
-            download_audio_output = download_job.result  # Get the job result
-
+            download_audio_output = download_job.result  
             logging.info('Adding transcript job...')
             transcript_job = q.enqueue(transcript, download_audio_output)
             logging.info(f'Added transcript job with id: {transcript_job.id}')
-            # Wait for the job to finish
             while not transcript_job.is_finished:
-                time.sleep(1)  # Sleep for a while before checking again
+                time.sleep(1) 
             
-            transcript_output = transcript_job.result  # Get the job result
-            
+            transcript_output = transcript_job.result  
             logging.info('Adding add_to_database job...')
             db_job = q.enqueue(add_to_database, transcript_output)
             logging.info(f'Added add_to_database job with id: {db_job.id}')
