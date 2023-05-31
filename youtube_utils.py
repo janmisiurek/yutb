@@ -39,6 +39,6 @@ def download_audio(url):
 
     # Create a new record in the database
     name = os.path.splitext(os.path.basename(output_file))[0]
-    create_audio_record(name, url, output_file)
+    record_id = create_audio_record(name, url, output_file)
 
-    return output_file, url
+    return record_id
