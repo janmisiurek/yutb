@@ -38,9 +38,11 @@ def create_audio_record(name, yt_url, audio_url):
     )
     with app.app_context():
         db.session.add(record)
+        db.session.flush()
+        record_id = record.id
         db.session.commit()
 
-    return record
+    return record_id
 
 
 def update_transcript_record(yt_url, transcript_url):
