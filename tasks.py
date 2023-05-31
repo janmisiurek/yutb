@@ -45,13 +45,14 @@ def create_audio_record(name, yt_url, audio_url):
     return record_id
 
 
-def update_transcript_record(yt_url, transcript_url):
+def update_transcript_record(record_id, transcript_url):
     from app import app
     with app.app_context():
-        record = Transcription.query.filter_by(yt_url=yt_url).first()
+        record = Transcription.query.get(record_id)
         if record is not None:
             record.transcript_url = transcript_url
             db.session.commit()
+
 
 
 def get_audio_record(id):

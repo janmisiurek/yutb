@@ -41,6 +41,6 @@ def transcript(id):
 
     # Update the database record
     print('updating record')
-    update_transcript_record(record.yt_url, transcription_file_path)
+    update_transcript_record(record.id, transcription_file_path)
     print('updated')
     return text
