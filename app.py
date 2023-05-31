@@ -59,7 +59,7 @@ def index():
             logging.error(f"Error downloading audio: {str(e)}")
             return abort(400, f"Error downloading audio: {str(e)}")
 
-        return redirect(url_for('job_status', job_id=db_job.get_id()))
+        return redirect(url_for('job_status', job_id=transcript_job.get_id()))
 
     return render_template('index.html')
 
