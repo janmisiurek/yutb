@@ -4,7 +4,7 @@ from aws_utils import upload_to_s3
 from dotenv import load_dotenv
 import os
 import yt_dlp
-from tasks import create_audio_record, get_record_id
+from tasks import create_audio_record
 
 load_dotenv()
 BUCKET_NAME = os.getenv('BUCKET_NAME')
@@ -39,9 +39,7 @@ def download_audio(url):
 
     # Create a new record in the database
     name = os.path.splitext(os.path.basename(output_file))[0]
-    record = create_audio_record(name, url, output_file)
+    record_id = create_audio_record(name, url, output_file)
 
-    # Get record id
-    record_id = get_record_id(record)
 
     return record_id
