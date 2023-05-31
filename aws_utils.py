@@ -59,3 +59,6 @@ def create_presigned_url(bucket_name, object_name, expiration=3600):
     return response
 
 
+def download_from_s3(bucket_name, s3_key, local_path):
+    s3 = boto3.resource('s3')
+    s3.Bucket(bucket_name).download_file(s3_key, local_path)
