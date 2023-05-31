@@ -1,10 +1,13 @@
 from rq.decorators import job
 from worker import conn
 from aws_utils import upload_to_s3
+from dotenv import load_dotenv
 import os
 import yt_dlp
-import openai_utils
+from tasks import create_audio_record
 
+load_dotenv()
+BUCKET_NAME = os.getenv('BUCKET_NAME')
 
 @job('default', connection=conn, timeout=3600)
 def download_audio(url):
@@ -26,14 +29,16 @@ def download_audio(url):
     # Download the audio
     with yt_dlp.YoutubeDL(options) as ydl:
         info_dict = ydl.extract_info(url, download=True)
-        # Prepare the output file name by replacing the extension with .mp3
         output_file = ydl.prepare_filename(info_dict).replace('.webm', '.mp3')
-
 
     print('sending file to s3')
     output_s3_key = os.path.join(output_dir, output_file)
 
     # Upload file to S3
-    upload_to_s3(output_file, 'wiadroborka', object_name=output_s3_key)
+    upload_to_s3(output_file, BUCKET_NAME, object_name=output_s3_key)
+
+    # Create a new record in the database
+    name = os.path.splitext(os.path.basename(output_file))[0]
+    create_audio_record(name, url, output_s3_key)
 
     return output_file, url

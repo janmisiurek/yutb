@@ -53,13 +53,7 @@ def index():
             logging.info('Adding transcript job...')
             transcript_job = q.enqueue(transcript, download_audio_output)
             logging.info(f'Added transcript job with id: {transcript_job.id}')
-            while not transcript_job.is_finished:
-                time.sleep(1) 
-            
-            transcript_output = transcript_job.result  
-            logging.info('Adding add_to_database job...')
-            db_job = q.enqueue(add_to_database, transcript_output)
-            logging.info(f'Added add_to_database job with id: {db_job.id}')
+
             
         except Exception as e:
             logging.error(f"Error downloading audio: {str(e)}")

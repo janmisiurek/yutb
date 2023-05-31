@@ -18,7 +18,7 @@ def add_to_database(transcript_output):
     record = Transcription(
         name=name_without_extension,
         yt_url=yt_url, 
-        audio_url='download/' + name_without_extension + '.mp3', 
+        audio_url=name_without_extension + '.mp3', 
         transcript_url=transcript_file_path
     )
 
@@ -27,3 +27,26 @@ def add_to_database(transcript_output):
         db.session.commit()
         
     return transcript_text, transcript_file_path, audio_file_path, yt_url
+
+
+def create_audio_record(name, yt_url, audio_url):
+    from app import app
+    record = Transcription(
+        name=name,
+        yt_url=yt_url,
+        audio_url=audio_url
+    )
+    with app.app_context():
+        db.session.add(record)
+        db.session.commit()
+
+    return record
+
+
+def update_transcript_record(yt_url, transcript_url):
+    from app import app
+    with app.app_context():
+        record = Transcription.query.filter_by(yt_url=yt_url).first()
+        if record is not None:
+            record.transcript_url = transcript_url
+            db.session.commit()
