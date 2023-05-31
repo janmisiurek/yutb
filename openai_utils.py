@@ -40,6 +40,7 @@ def transcript(id):
     s3.Object(BUCKET_NAME, transcription_file_path).put(Body=text)
 
     # Update the database record
+    print('updating record')
     update_transcript_record(record.yt_url, transcription_file_path)
-
+    print('updated')
     return text
