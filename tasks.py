@@ -57,3 +57,8 @@ def get_audio_record(id):
     with app.app_context():
         record = Transcription.query.get(id)
     return record
+
+def get_record_id(record):
+    from app import app
+    with app.app_context():
+        return record.id
