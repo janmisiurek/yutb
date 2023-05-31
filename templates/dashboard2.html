@@ -24,8 +24,8 @@
                 <td>{{ transcription.id }}</td>
                 <td>{{ transcription.name }}</td>
                 <td><a href="{{ transcription.yt_url }}">{{ transcription.yt_url }}</a></td>
-                <td><a href="{{ url_for('download_file', folder='', filename=transcription.audio_url) }}">Download Audio</a></td>
-                <td><a href="{{ url_for('download_file', folder='', filename=transcription.transcript_url) }}">Download Transcription</a></td>
+                <td><a href="{{ url_for('download_file', filename=transcription.audio_url) }}">Download Audio</a></td>
+                <td><a href="{{ url_for('download_file', filename=transcription.transcript_url) }}">Download Transcription</a></td>
             </tr>
             {% endfor %}
         </tbody>

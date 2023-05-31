@@ -77,11 +77,11 @@ def job_status(job_id):
 
 
 
-@app.route('/download/<path:folder>/<path:filename>')
+@app.route('/download/<path:filename>')
 @auth.login_required
-def download_file(folder, filename):
-    file_path = os.path.join(folder, filename)
-    presigned_url = create_presigned_url(BUCKET_NAME, file_path)
+def download_file(filename):
+    
+    presigned_url = create_presigned_url(BUCKET_NAME, filename)
 
     if presigned_url is None:
         abort(404, "File not found")
