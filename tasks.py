@@ -50,3 +50,10 @@ def update_transcript_record(yt_url, transcript_url):
         if record is not None:
             record.transcript_url = transcript_url
             db.session.commit()
+
+
+def get_audio_record(id):
+    from app import app
+    with app.app_context():
+        record = Transcription.query.get(id)
+    return record
