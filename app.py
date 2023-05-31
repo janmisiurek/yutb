@@ -9,9 +9,9 @@ from rq import Queue
 from worker import conn
 from rq.job import Job
 from models import db, Transcription
-from tasks import add_to_database
+
 import logging
-from rq import get_current_job
+
 import time
 
 load_dotenv()
