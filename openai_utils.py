@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from rq.decorators import job
 from worker import conn
 import boto3
+from tasks import update_transcript_record
 
 load_dotenv()
 S3_ACCESS_KEY = os.getenv("S3_ACCESS_KEY")
@@ -24,5 +25,7 @@ def transcript(download_audio_output):
     s3 = boto3.resource('s3', aws_access_key_id=S3_ACCESS_KEY, aws_secret_access_key=S3_SECRET_KEY)
     s3.Object(BUCKET_NAME, transcription_file_path).put(Body=text)
 
+    # Update the database record
+    update_transcript_record(yt_url, transcription_file_path)
 
     return text, transcription_file_path, audio_file_path, yt_url
