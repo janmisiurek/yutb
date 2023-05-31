@@ -1,7 +1,9 @@
-
+from rq import Queue
+from rq.decorators import job
+from worker import conn
 from models import db, Transcription
 
-
+import os
 
 def create_audio_record(name, yt_url, audio_url):
     from app import app
