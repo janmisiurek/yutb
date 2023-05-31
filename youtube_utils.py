@@ -35,10 +35,10 @@ def download_audio(url):
     output_s3_key = os.path.join(output_dir, output_file)
 
     # Upload file to S3
-    upload_to_s3(output_file, BUCKET_NAME, object_name=output_s3_key)
+    upload_to_s3(output_file, BUCKET_NAME, object_name=output_file)
 
     # Create a new record in the database
     name = os.path.splitext(os.path.basename(output_file))[0]
-    create_audio_record(name, url, output_s3_key)
+    create_audio_record(name, url, output_file)
 
     return output_file, url
