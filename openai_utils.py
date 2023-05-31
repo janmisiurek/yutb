@@ -25,20 +25,21 @@ def transcript(id):
 
     # Prepare local file path for the downloaded audio file
     local_audio_path = os.path.join('/tmp', os.path.basename(record.audio_url))
-
+    print('dowloanding audio from s3')
     # Download the audio file from S3 to local
     download_from_s3(BUCKET_NAME, record.audio_url, local_audio_path)
-
+    
+    print('Transcribing')
     audio_file = open(local_audio_path, "rb")
     transcript_data = openai.Audio.transcribe("whisper-1", audio_file, OPENAI_API_KEY)
     text = transcript_data['text']
-
+    print(text)
     transcription_file_path = 'transcriptions/' + os.path.basename(local_audio_path) + '.txt'
-
+    print('sending to s3')
     s3 = boto3.resource('s3', aws_access_key_id=S3_ACCESS_KEY, aws_secret_access_key=S3_SECRET_KEY)
     s3.Object(BUCKET_NAME, transcription_file_path).put(Body=text)
 
     # Update the database record
     update_transcript_record(record.yt_url, transcription_file_path)
 
-    return text, transcription_file_path, local_audio_path, record.yt_url
+    return text
