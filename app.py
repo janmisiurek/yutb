@@ -9,6 +9,7 @@ from rq import Queue
 from worker import conn
 from rq.job import Job
 from models import db, Transcription
+from flask_socketio import SocketIO
 
 import logging
 
@@ -24,6 +25,7 @@ auth = HTTPBasicAuth()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:////tmp/test.db')
 
 db.init_app(app)
+socketio = SocketIO(app)
 
 with app.app_context():
     db.create_all()
@@ -54,10 +56,14 @@ def index():
             transcript_job = q.enqueue(transcript, download_audio_output)
             logging.info(f'Added transcript job with id: {transcript_job.id}')
 
-            
+            while not transcript_job.is_finished:
+                time.sleep(1)
+
+            socketio.emit('refresh', {'message': 'Job finished'}, namespace='/test')
+
         except Exception as e:
-            logging.error(f"Error downloading audio: {str(e)}")
-            return abort(400, f"Error downloading audio: {str(e)}")
+            logging.error(f"Error processing job: {str(e)}")
+            return abort(400, f"Error processing job: {str(e)}")
 
         return redirect(url_for('dashboard2'))
 

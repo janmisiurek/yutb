@@ -50,6 +50,16 @@
             <a href="{{ url_for('index') }}">Powrót do strony głównej</a>
         </p>
     </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
+        socket.on('refresh', function(msg) {
+            if (msg.message === 'Job finished') {
+                location.reload();
+            }
+        });
+    </script>
 </body>
 
 {% endblock %}
