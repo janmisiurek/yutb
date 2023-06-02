@@ -1,10 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-</head>
+{% extends "base.html" %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
+
+{% block content %}
+
 <body>
     <h1>Dashboard</h1>
     <h2>Pliki audio</h2>
@@ -27,4 +29,5 @@
         <a href="{{ url_for('index') }}">Powrót do strony głównej</a>
     </p>
 </body>
-</html>
+
+{% endblock %}
