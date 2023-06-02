@@ -11,7 +11,7 @@
     <ul>
         {% for file in audio_files %}
         <li>
-            <a href="{{ url_for('download_file', folder='download', filename=file) }}">{{ file }}</a>
+            <a href="{{ url_for('download_file', filename=file) }}">{{ file }}</a>
         </li>
         {% endfor %}
     </ul>
@@ -19,7 +19,7 @@
     <ul>
         {% for file in transcription_files %}
         <li>
-            <a href="{{ url_for('download_file', folder='transcriptions', filename=file) }}">{{ file }}</a>
+            <a href="{{ url_for('download_file', filename=file) }}">{{ file }}</a>
         </li>
         {% endfor %}
     </ul>
