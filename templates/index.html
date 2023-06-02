@@ -1,21 +1,27 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <title>Yutb</title>
-</head>
-<body>
-    <h1>Yutb</h1>
-    <form method="POST" action="/">
-        <label for="url">youtube url:</label>
-        <input type="url" id="url" name="url" required>
-        <button type="submit">submit</button>
+{% extends "base.html" %}
+
+{% block title %}
+Y U T B
+{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1>Y U T B</h1>
+    <form method="POST" action="/" class="form-inline d-flex justify-content-center">
+        <div class="form-group mx-sm-3 mb-2">
+            <label for="url" class="sr-only">youtube url:</label>
+            <input type="url" class="form-control" id="url" name="url" required placeholder="YouTube URL">
+        </div>
+        <button type="submit" class="btn btn-primary mb-2">Submit</button>
     </form>
+    <br>
+    <br>
     <p>
-        <a href="{{ url_for('dashboard') }}">dashboard</a>
+        <a href="{{ url_for('dashboard2') }}" style=" font-size: 16px; margin-right: 18px;">D A S H B O A R D</a>
+        
+        <a href="{{ url_for('dashboard') }}" style=" font-size: 16px;">S 3&nbsp;&nbsp;F I L E S</a>
+
     </p>
-    <p>
-        <a href="{{ url_for('dashboard2') }}">dashboard2</a>
-    </p>
-</body>
-</html>
+</div>
+
+{% endblock %}

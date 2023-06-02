@@ -1,50 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-</head>
-<body>
-    <h1>Dashboard</h1>
-    <h2>Transkrypcje</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>YT URL</th>
-                <th>Audio URL</th>
-                <th>Transcription URL</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for transcription in transcriptions %}
-            <tr>
-                <td>{{ transcription.id }}</td>
-                <td>{{ transcription.name }}</td>
-                <td><a href="{{ transcription.yt_url }}">{{ transcription.yt_url }}</a></td>
-                <td>
-                    {% if transcription.audio_url %}
-                        <a href="{{ url_for('download_file', filename=transcription.audio_url) }}">Download Audio</a>
-                    {% else %}
-                        Brak
-                    {% endif %}
-                </td>
-                <td>
-                    {% if transcription.transcript_url %}
-                        <a href="{{ url_for('download_file', filename=transcription.transcript_url) }}">Download Transcription</a>
-                    {% else %}
-                        Brak
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <p>
-        <a href="{{ url_for('index') }}">Powrót do strony głównej</a>
-    </p>
-</body>
-</html>
+{% extends "base.html" %}
 
+{% block title %}
+    Dashboard
+{% endblock %}
+
+
+{% block content %}
+
+<body>
+    <div class="container">
+        <h1>D A S H B O A R D</h1>
+        <h4>T R A N S C R I P T I O N S</h4>
+        <table class="table table-dark">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">NAME</th>
+                    <th scope="col">YOUTUBE URL</th>
+                    <th scope="col">AUDIO</th>
+                    <th scope="col">TRANSCRIPTION</th>
+                </tr>
+                
+            </thead>
+            <tbody>
+                {% for transcription in transcriptions %}
+                <tr>
+                    <th scope="row">{{ transcription.id }}</th>
+                    <td>{{ transcription.name }}</td>
+                    <td><a href="{{ transcription.yt_url }}">{{ transcription.yt_url }}</a></td>
+                    <td>
+                        {% if transcription.audio_url %}
+                            <a href="{{ url_for('download_file', filename=transcription.audio_url) }}">Download Audio</a>
+                        {% else %}
+                            Brak
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if transcription.transcript_url %}
+                            <a href="{{ url_for('download_file', filename=transcription.transcript_url) }}">Download Transcription</a>
+                        {% else %}
+                            Brak
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p>
+            <a href="{{ url_for('index') }}">Powrót do strony głównej</a>
+        </p>
+    </div>
+</body>
+
+{% endblock %}
