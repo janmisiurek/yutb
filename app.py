@@ -10,7 +10,7 @@ from worker import conn
 from rq.job import Job
 from models import db, Transcription
 from flask_socketio import SocketIO
-
+from threading import Thread
 import logging
 
 import time
@@ -36,6 +36,27 @@ def verify_password(username, password):
     correct_password = os.getenv("YUTB_PASSWORD")
     return (username == correct_username and password == correct_password)
 
+def process_jobs(url):
+    try:
+        logging.info(f'Adding download_audio job for url: {url}')
+        download_job = q.enqueue(download_audio, url)
+        logging.info(f'Added download_audio job with id: {download_job.id}')
+        while not download_job.is_finished:
+            time.sleep(1) 
+
+        download_audio_output = download_job.result  
+        logging.info('Adding transcript job...')
+        transcript_job = q.enqueue(transcript, download_audio_output)
+        logging.info(f'Added transcript job with id: {transcript_job.id}')
+
+        while not transcript_job.is_finished:
+            time.sleep(1)
+
+        socketio.emit('refresh', {'message': 'Job finished'}, namespace='/test')
+
+    except Exception as e:
+        logging.error(f"Error processing job: {str(e)}")
+
 @app.route('/', methods=['GET', 'POST'])
 @auth.login_required
 def index():
@@ -44,30 +65,13 @@ def index():
         if not url:
             return abort(400, 'No URL provided')
 
-        try:
-            logging.info(f'Adding download_audio job for url: {url}')
-            download_job = q.enqueue(download_audio, url)
-            logging.info(f'Added download_audio job with id: {download_job.id}')
-            while not download_job.is_finished:
-                time.sleep(1) 
-            
-            download_audio_output = download_job.result  
-            logging.info('Adding transcript job...')
-            transcript_job = q.enqueue(transcript, download_audio_output)
-            logging.info(f'Added transcript job with id: {transcript_job.id}')
-
-            while not transcript_job.is_finished:
-                time.sleep(1)
-
-            socketio.emit('refresh', {'message': 'Job finished'}, namespace='/test')
-
-        except Exception as e:
-            logging.error(f"Error processing job: {str(e)}")
-            return abort(400, f"Error processing job: {str(e)}")
+        thread = Thread(target=process_jobs, args=(url,))
+        thread.start()
 
         return redirect(url_for('dashboard2'))
 
     return render_template('index.html')
+
 
 @app.route("/job/<job_id>", methods=['GET'])
 @auth.login_required
