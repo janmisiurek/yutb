@@ -9,6 +9,15 @@
 
 <body>
     <div class="container">
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-info">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
         <h1>D A S H B O A R D</h1>
         <h4>T R A N S C R I P T I O N S</h4>
         <table class="table table-dark">
