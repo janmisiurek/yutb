@@ -22,7 +22,7 @@ q = Queue(connection=conn)
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:////tmp/test.db')
-app.secret_key = os.environ.get('SECRET_KEY')
+app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
 db.init_app(app)
 
