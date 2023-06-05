@@ -5,40 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <style>
-        body {
-            background: linear-gradient(to right, #0f0c29, #24243e, #24243e);
-            color: #faffe1;
-        }
-
-        a {
-            text-decoration: none; /* Usunięcie podkreślenia */
-            transition: background-color 0.3s ease; /* Płynna zmiana koloru tła */
-        }
-        
-        a:hover {
-            color: #f6ffc9; /* Kolor tekstu dla linków po najechaniu */
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Efekt cienia przy najechaniu */
-            text-decoration: none; /* Usunięcie podkreślenia po najechaniu */
-        }
-        
-        /* Style dla linków na belce nawigacyjnej */
-        .navbar a {
-            color: #faffe1 !important;
-        }
-        
-        .navbar a:hover {
-            color: #327ab7 !important;
-            text-decoration: none; /* Usunięcie podkreślenia po najechaniu */
-        }
-
-        .table-dark {
-            background-color: rgba(0, 0, 0, 0.3) !important;
-        }
-
-    </style>
 </head>
 <body>
     <nav class="navbar navbar-inverse" style="background: linear-gradient(to right, #080619, #161629, #161629); color: #faffe1;">
