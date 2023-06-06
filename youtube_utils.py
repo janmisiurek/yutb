@@ -24,7 +24,7 @@ def download_audio_without_job(url, tempo):
             {
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
-            'preferredquality': '192',
+            'preferredquality': '96',
             'nopostoverwrites': False,
             },
         ],
