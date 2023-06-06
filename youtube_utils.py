@@ -5,12 +5,13 @@ from dotenv import load_dotenv
 import os
 import yt_dlp
 from tasks import create_audio_record
+import subprocess
 
 load_dotenv()
 BUCKET_NAME = os.getenv('BUCKET_NAME')
 
 
-import subprocess
+
 
 def download_audio_without_job(url, tempo):
     output_dir = 'download'
@@ -24,7 +25,7 @@ def download_audio_without_job(url, tempo):
             {
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
-            'preferredquality': '96',
+            'preferredquality': '192',
             'nopostoverwrites': False,
             },
         ],
@@ -37,7 +38,7 @@ def download_audio_without_job(url, tempo):
 
     # Change audio tempo using ffmpeg
     tempo_output_file = output_file.replace('.mp3', f'_tempo_{tempo}.mp3')
-    command = ['ffmpeg', '-i', output_file, '-filter:a', f'atempo={tempo}', tempo_output_file]
+    command = ['ffmpeg', '-y', '-i', output_file, '-filter:a', f'atempo={tempo}', tempo_output_file]
     subprocess.run(command, check=True)
 
     print('sending file to s3')
@@ -51,7 +52,6 @@ def download_audio_without_job(url, tempo):
     record_id = create_audio_record(name, url, tempo_output_file)
 
     return record_id
-
 
            
 
