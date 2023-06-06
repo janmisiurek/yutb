@@ -1,7 +1,7 @@
 import os
 import redis
 from rq import Worker, Queue, Connection
-import youtube_utils
+
 
 listen = ['default']
 
