@@ -53,5 +53,5 @@ def download_audio_without_job(url, tempo):
 
 
 @job('default', connection=conn, timeout=3600)
-def download_audio(url):
-    return download_audio_without_job(url)
+def download_audio(url, tempo):
+    return download_audio_without_job(url, tempo)
