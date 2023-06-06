@@ -12,3 +12,24 @@ instance/
 yutb/
 download/
 transcriptions/
+
+# Pytest
+.pytest_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Unit test / coverage reports
+*.cover
+*.py,cover
+.coverage
+nosetests.xml
+coverage.xml
+*.cover.html
+
+# If using pytest-cov
+cov/
+
+# If using tox
+.tox/

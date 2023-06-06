@@ -9,8 +9,8 @@ from tasks import create_audio_record
 load_dotenv()
 BUCKET_NAME = os.getenv('BUCKET_NAME')
 
-@job('default', connection=conn, timeout=3600)
-def download_audio(url):
+
+def download_audio_without_job(url):
     output_dir = 'download'
     os.makedirs(output_dir, exist_ok=True)
 
@@ -43,3 +43,8 @@ def download_audio(url):
 
 
     return record_id
+
+
+@job('default', connection=conn, timeout=3600)
+def download_audio(url):
+    return download_audio_without_job(url)
