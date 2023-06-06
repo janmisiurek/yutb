@@ -15,7 +15,11 @@ Y U T B
         <button type="submit" class="btn btn-primary mb-2">Submit</button>
     </form>
     <br>
-    <br>
+    <div class="form-group mx-sm-3 mb-2" style="text-align: center;">
+        <output id="tempoOutput", style="color: #f6ffc9">1</output>
+        <input type="range" min="1" max="2" step="0.25" value="1" class="slider" id="tempo" name="tempo" style="width: 50%; margin: 0 auto;"><br>
+        
+    </div>
     <p>
         <a href="{{ url_for('dashboard2') }}" style=" font-size: 16px; margin-right: 18px;">D A S H B O A R D</a>
         
@@ -23,5 +27,13 @@ Y U T B
 
     </p>
 </div>
+
+<script>
+    var tempoSlider = document.getElementById("tempo");
+    var tempoOutput = document.getElementById("tempoOutput");
+    tempoSlider.oninput = function() {
+        tempoOutput.value = this.value;
+    }
+</script>
 
 {% endblock %}

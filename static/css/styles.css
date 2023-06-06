@@ -27,3 +27,8 @@ a:hover {
 .table-dark {
     background-color: rgba(0, 0, 0, 0.3) !important;
 }
+
+.slider-container {
+    width: 400px; /* Suma szerokości formularza i przycisku */
+}
+

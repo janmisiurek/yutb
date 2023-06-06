@@ -10,7 +10,7 @@ load_dotenv()
 BUCKET_NAME = os.getenv('BUCKET_NAME')
 
 
-def download_audio_without_job(url):
+def download_audio_without_job(url, tempo):
     output_dir = 'download'
     os.makedirs(output_dir, exist_ok=True)
 
@@ -18,12 +18,17 @@ def download_audio_without_job(url):
     options = {
         'format': 'bestaudio/best',
         'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
+        'postprocessors': [
+            {            'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
             'preferredquality': '192',
             'nopostoverwrites': False,
-        }],
+            },
+            {
+            'key': 'FFmpegAudioRemuxer',
+            'options': f'-filter:a "atempo={tempo}"'
+            }
+        ],
     }
 
     # Download the audio
@@ -41,8 +46,10 @@ def download_audio_without_job(url):
     name = os.path.splitext(os.path.basename(output_file))[0]
     record_id = create_audio_record(name, url, output_file)
 
-
     return record_id
+
+           
+
 
 
 @job('default', connection=conn, timeout=3600)

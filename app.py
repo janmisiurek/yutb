@@ -34,18 +34,22 @@ def verify_password(username, password):
     correct_username = os.getenv("YUTB_USERNAME")
     correct_password = os.getenv("YUTB_PASSWORD")
     return (username == correct_username and password == correct_password)
-
 @app.route('/', methods=['GET', 'POST'])
 @auth.login_required
 def index():
     if request.method == 'POST':
         url = request.form.get('url')
+        tempo = request.form.get('tempo')
+
         if not url:
             return abort(400, 'No URL provided')
 
+        if not tempo:
+            return abort(400, 'No tempo provided')
+
         try:
             logging.info(f'Adding download_audio job for url: {url}')
-            download_job = q.enqueue(download_audio, url)
+            download_job = q.enqueue(download_audio_without_job, url, tempo)
             logging.info(f'Added download_audio job with id: {download_job.id}')
             while not download_job.is_finished:
                 time.sleep(1) 
@@ -64,6 +68,7 @@ def index():
         return redirect(url_for('dashboard2'))
     
     return render_template('index.html')
+
 
 @app.route("/job/<job_id>", methods=['GET'])
 @auth.login_required
