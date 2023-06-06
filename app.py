@@ -2,8 +2,7 @@ from flask import Flask, render_template, request, abort, redirect, url_for, sen
 from flask_httpauth import HTTPBasicAuth
 from dotenv import load_dotenv
 import os
-from youtube_utils import download_audio
-from openai_utils import transcript
+from jobs import download_and_transcribe
 from aws_utils import *
 from rq import Queue
 from worker import conn
@@ -40,30 +39,29 @@ def verify_password(username, password):
 def index():
     if request.method == 'POST':
         url = request.form.get('url')
+        tempo = request.form.get('tempo')
+
         if not url:
             return abort(400, 'No URL provided')
 
-        try:
-            logging.info(f'Adding download_audio job for url: {url}')
-            download_job = q.enqueue(download_audio, url)
-            logging.info(f'Added download_audio job with id: {download_job.id}')
-            while not download_job.is_finished:
-                time.sleep(1) 
-            
-            download_audio_output = download_job.result  
-            logging.info('Adding transcript job...')
-            transcript_job = q.enqueue(transcript, download_audio_output)
-            logging.info(f'Added transcript job with id: {transcript_job.id}')
+        if not tempo:
+            return abort(400, 'No tempo provided')
 
+        try:
+            logging.info(f'Adding download_and_transcribe job for url: {url}')
+            job = q.enqueue(download_and_transcribe, url, tempo)
+            logging.info(f'Added download_and_transcribe job with id: {job.id}')
             
         except Exception as e:
-            logging.error(f"Error downloading audio: {str(e)}")
-            return abort(400, f"Error downloading audio: {str(e)}")
+            logging.error(f"Error downloading and transcribing audio: {str(e)}")
+            return abort(400, f"Error downloading and transcribing audio: {str(e)}")
 
         flash("Transcription in progress")
         return redirect(url_for('dashboard2'))
     
     return render_template('index.html')
+
+
 
 @app.route("/job/<job_id>", methods=['GET'])
 @auth.login_required
