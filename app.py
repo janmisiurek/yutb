@@ -34,6 +34,7 @@ def verify_password(username, password):
     correct_username = os.getenv("YUTB_USERNAME")
     correct_password = os.getenv("YUTB_PASSWORD")
     return (username == correct_username and password == correct_password)
+
 @app.route('/', methods=['GET', 'POST'])
 @auth.login_required
 def index():
@@ -52,7 +53,8 @@ def index():
             download_job = q.enqueue(download_audio, url, tempo)
             logging.info(f'Added download_audio job with id: {download_job.id}')
             while not download_job.is_finished:
-                time.sleep(1) 
+                flash("work in progress")
+                return redirect(url_for('dashboard2'))
             
             download_audio_output = download_job.result  
             logging.info('Adding transcript job...')
