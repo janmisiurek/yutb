@@ -49,7 +49,7 @@ def index():
 
         try:
             logging.info(f'Adding download_audio job for url: {url}')
-            download_job = q.enqueue(download_audio_without_job, url, tempo)
+            download_job = q.enqueue(download_audio, url, tempo)
             logging.info(f'Added download_audio job with id: {download_job.id}')
             while not download_job.is_finished:
                 time.sleep(1) 
