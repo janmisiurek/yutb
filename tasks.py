@@ -39,3 +39,5 @@ def get_record_id(record):
     from app import app
     with app.app_context():
         return record.id
+    
+# Helper function combines the download and transcript functions for asynchronous execution as an RQ job, ensuring the transcript job is queued after the download job.
