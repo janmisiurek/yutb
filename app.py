@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, abort, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, abort, redirect, url_for, send_from_directory, flash
 from flask_httpauth import HTTPBasicAuth
 from dotenv import load_dotenv
 import os
@@ -22,6 +22,7 @@ q = Queue(connection=conn)
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:////tmp/test.db')
+app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
 db.init_app(app)
 
@@ -59,8 +60,9 @@ def index():
             logging.error(f"Error downloading audio: {str(e)}")
             return abort(400, f"Error downloading audio: {str(e)}")
 
-        return redirect(url_for('job_status', job_id=transcript_job.get_id()))
-
+        flash("Transcription in progress")
+        return redirect(url_for('dashboard2'))
+    
     return render_template('index.html')
 
 @app.route("/job/<job_id>", methods=['GET'])
