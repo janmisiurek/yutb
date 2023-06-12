@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, abort, redirect, url_for, sen
 from flask_httpauth import HTTPBasicAuth
 from dotenv import load_dotenv
 import os
-from jobs import download_and_transcribe
+from jobs import download_transcribe_generate_notes
 from aws_utils import *
 from rq import Queue
 from worker import conn
@@ -48,18 +48,19 @@ def index():
             return abort(400, 'No tempo provided')
 
         try:
-            logging.info(f'Adding download_and_transcribe job for url: {url}')
-            job = q.enqueue(download_and_transcribe, url, tempo)
-            logging.info(f'Added download_and_transcribe job with id: {job.id}')
+            logging.info(f'Adding download_transcribe_create_notes job for url: {url}')
+            job = q.enqueue(download_transcribe_generate_notes, url, tempo)
+            logging.info(f'Added download_transcribe_create_notes job with id: {job.id}')
             
         except Exception as e:
-            logging.error(f"Error downloading and transcribing audio: {str(e)}")
-            return abort(400, f"Error downloading and transcribing audio: {str(e)}")
+            logging.error(f"Error downloading, transcribing, and creating notes: {str(e)}")
+            return abort(400, f"Error downloading, transcribing, and creating notes: {str(e)}")
 
-        flash("Transcription in progress")
+        flash("Transcription and note creation in progress")
         return redirect(url_for('dashboard2'))
     
     return render_template('index.html')
+
 
 
 

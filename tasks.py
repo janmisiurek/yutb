@@ -40,4 +40,19 @@ def get_record_id(record):
     with app.app_context():
         return record.id
     
-# Helper function combines the download and transcript functions for asynchronous execution as an RQ job, ensuring the transcript job is queued after the download job.
+def update_notes_record(record_id, notes_url, model):
+    from app import app
+    with app.app_context():
+        record = Transcription.query.get(record_id)
+        if record is not None:
+            if model == 'gpt-3.5-turbo':
+                record.notes_url_gpt3 = notes_url
+            elif model == 'gpt-4':
+                record.notes_url_gpt4 = notes_url
+            db.session.commit()
+
+def get_transcription_record(record_id):
+    from app import app
+    with app.app_context():
+        record = Transcription.query.get(record_id)
+    return record

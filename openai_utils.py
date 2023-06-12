@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from rq.decorators import job
 from worker import conn
 import boto3
-from tasks import update_transcript_record, get_audio_record
+from tasks import update_transcript_record, get_audio_record, update_notes_record, get_transcription_record
 from aws_utils import download_from_s3
 
 load_dotenv()
@@ -44,3 +44,48 @@ def transcript(id):
     update_transcript_record(record.id, transcription_file_path)
     print('updated')
     return text
+
+@job('default', connection=conn, timeout=3600)
+def generate_notes(record_id):
+    # Fetch the record from the database
+    record = get_transcription_record(record_id)
+
+    # If the record does not exist or it has no transcription_url, we cannot proceed
+    if record is None or record.transcription_url is None:
+        raise Exception("No transcription record found for ID: " + str(record_id))
+
+    # Prepare local file path for the downloaded transcription file
+    local_transcription_path = os.path.join('/tmp', os.path.basename(record.transcription_url))
+    
+    # Download the transcription file from S3 to local
+    download_from_s3(BUCKET_NAME, record.transcription_url, local_transcription_path)
+    
+    # Read the transcription text
+    with open(local_transcription_path, 'r') as file:
+        transcription_text = file.read()
+
+    # Models to use
+    models = ["gpt-3.5-turbo", "gpt-4"]
+
+    for model in models:
+        # Generate notes using GPT model
+        response = openai.ChatCompletion.create(
+                      model=model,
+                      messages=[{"role": "system", "content": 'You are a helpful assistant.'},
+                                {"role": "user", "content": transcription_text}
+                      ])
+
+        # Check if the response is okay and extract the generated text
+        if response["choices"][0]["finish_reason"] == 'stop':
+            notes = response["choices"][0]["message"]["content"]
+        else:
+            raise Exception("Error generating notes using " + model)
+
+        # Save the notes on S3 and update the database record
+        notes_file_path = 'notes/' + model + '/' + os.path.basename(local_transcription_path).replace('.txt', '_' + model + '.txt')
+        s3 = boto3.resource('s3', aws_access_key_id=S3_ACCESS_KEY, aws_secret_access_key=S3_SECRET_KEY)
+        s3.Object(BUCKET_NAME, notes_file_path).put(Body=notes)
+
+        update_notes_record(record.id, notes_file_path, model)
+
+    return notes

@@ -8,3 +8,5 @@ class Transcription(db.Model):
     yt_url = db.Column(db.String(256))
     audio_url = db.Column(db.String(256))
     transcript_url = db.Column(db.String(256))
+    notes_url_gpt3 = db.Column(db.String(256))
+    notes_url_gpt4 = db.Column(db.String(256))
