@@ -33,3 +33,7 @@ cov/
 
 # If using tox
 .tox/
+
+# Alembic files
+alembic.ini
+alembic/README
