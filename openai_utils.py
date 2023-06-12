@@ -71,7 +71,7 @@ def generate_notes(record_id):
         # Generate notes using GPT model
         response = openai.ChatCompletion.create(
                       model=model,
-                      messages=[{"role": "system", "content": 'You are a helpful assistant.'},
+                      messages=[{"role": "system", "content": 'You are an assistant for creating notes based on transcriptions from films. The notes should include the main theme of the film, plus points and sub-points. Answer only in the form of notes in the language you received the text.'},
                                 {"role": "user", "content": transcription_text}
                       ])
 
