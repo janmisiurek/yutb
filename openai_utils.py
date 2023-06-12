@@ -50,15 +50,15 @@ def generate_notes(record_id):
     # Fetch the record from the database
     record = get_transcription_record(record_id)
 
-    # If the record does not exist or it has no transcription_url, we cannot proceed
-    if record is None or record.transcription_url is None:
+    # If the record does not exist or it has no transcript_url, we cannot proceed
+    if record is None or record.transcript_url is None:
         raise Exception("No transcription record found for ID: " + str(record_id))
 
-    # Prepare local file path for the downloaded transcription file
+    # Prepare local file path for the downloaded transcript_file
     local_transcription_path = os.path.join('/tmp', os.path.basename(record.transcription_url))
     
     # Download the transcription file from S3 to local
-    download_from_s3(BUCKET_NAME, record.transcription_url, local_transcription_path)
+    download_from_s3(BUCKET_NAME, record.transcript_url, local_transcription_path)
     
     # Read the transcription text
     with open(local_transcription_path, 'r') as file:
