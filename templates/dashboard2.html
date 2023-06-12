@@ -28,6 +28,8 @@
                     <th scope="col">YOUTUBE URL</th>
                     <th scope="col">AUDIO</th>
                     <th scope="col">TRANSCRIPTION</th>
+                    <th scope="col">NOTES GPT-3.5</th>
+                    <th scope="col">NOTES GPT-4</th>
                 </tr>
                 
             </thead>
@@ -47,6 +49,20 @@
                     <td>
                         {% if transcription.transcript_url %}
                             <a href="{{ url_for('download_file', filename=transcription.transcript_url) }}">Download Transcription</a>
+                        {% else %}
+                            Brak
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if transcription.notes_url_gpt3 %}
+                            <a href="{{ url_for('download_file', filename=transcription.notes_url_gpt3) }}">Download Notes GPT-3.5</a>
+                        {% else %}
+                            Brak
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if transcription.notes_url_gpt4 %}
+                            <a href="{{ url_for('download_file', filename=transcription.notes_url_gpt4) }}">Download Notes GPT-4</a>
                         {% else %}
                             Brak
                         {% endif %}
