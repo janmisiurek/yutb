@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ name }}
+{% endblock %}
+
+{% block content %}
+<body>
+    <div class="container">
+
+        <h1>{{ name }}</h1>
+
+        <h2>GPT-4 Notes</h2>
+        <p>{{ notes_gpt4|safe }}</p>
+
+        <h2>GPT-3 Notes</h2>
+        <p>{{ notes_gpt3|safe }}</p>
+
+        <p>
+            <a href="{{ url_for('dashboard2') }}">Powrót do dashboard</a>
+        </p>
+
+    </div>
+</body>
+{% endblock %}

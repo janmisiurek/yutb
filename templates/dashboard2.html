@@ -37,7 +37,7 @@
                 {% for transcription in transcriptions %}
                 <tr>
                     <th scope="row">{{ transcription.id }}</th>
-                    <td>{{ transcription.name }}</td>
+                    <td><a href="{{ url_for('notes', record_id=transcription.id) }}">{{ transcription.name }}</a></td>
                     <td><a href="{{ transcription.yt_url }}">{{ transcription.yt_url }}</a></td>
                     <td>
                         {% if transcription.audio_url %}
@@ -76,5 +76,4 @@
         </p>
     </div>
 </body>
-
 {% endblock %}

@@ -8,6 +8,7 @@ from rq import Queue
 from worker import conn
 from rq.job import Job
 from models import db, Transcription
+import tempfile
 
 import logging
 
@@ -106,6 +107,28 @@ def dashboard2():
         transcriptions = Transcription.query.all()
     return render_template('dashboard2.html', transcriptions=transcriptions)
 
+@app.route('/notes/<record_id>')
+@auth.login_required
+def notes(record_id):
+    transcription = Transcription.query.get(record_id)
+    if not transcription:
+        abort(404, description="Record not found")
+
+    local_path_gpt3 = os.path.join(tempfile.gettempdir(), f"{record_id}_gpt3.txt")
+    local_path_gpt4 = os.path.join(tempfile.gettempdir(), f"{record_id}_gpt4.txt")
+
+    download_from_s3(BUCKET_NAME, transcription.notes_url_gpt3, local_path_gpt3)
+    download_from_s3(BUCKET_NAME, transcription.notes_url_gpt4, local_path_gpt4)
+
+    with open(local_path_gpt4, 'r') as file:
+        notes_gpt4 = file.read().replace('\n', '<br>')
+    os.remove(local_path_gpt4)
+
+    with open(local_path_gpt3, 'r') as file:
+        notes_gpt3 = file.read().replace('\n', '<br>')
+    os.remove(local_path_gpt3)
+
+    return render_template('notes.html', name=transcription.name, notes_gpt3=notes_gpt3, notes_gpt4=notes_gpt4)
 
 if __name__ == '__main__':
     app.run(debug=True)
