@@ -10,6 +10,18 @@
 
         <h1>{{ name }}</h1>
 
+        <form method="POST">
+            <h3>Generate Social Media Content:</h3>
+            <input type="checkbox" id="tweet" name="content_types" value="tweet">
+            <label for="tweet">Tweet</label><br>
+            <input type="checkbox" id="tweet_thread" name="content_types" value="tweet_thread">
+            <label for="tweet_thread">Tweet Thread</label><br>
+            <input type="checkbox" id="linkedin_post" name="content_types" value="linkedin_post">
+            <label for="linkedin_post">LinkedIn Post</label><br>
+            <input type="submit" value="Generate">
+        </form>
+        <br>
+
         {% if social_media_content %}
         <table>
             <tr>
