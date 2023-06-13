@@ -126,6 +126,7 @@ def generate_social_media_content(record_id, content_types):
             # Check if the response is okay and extract the generated text
             if response["choices"][0]["finish_reason"] == 'stop':
                 content = response["choices"][0]["message"]["content"]
+                print(f"Generated content: {content}")
             else:
                 raise Exception(f"Error generating {content_type} content using {model}")
 
