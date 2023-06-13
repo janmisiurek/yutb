@@ -64,28 +64,29 @@ def generate_notes(record_id):
     with open(local_transcription_path, 'r') as file:
         transcription_text = file.read()
 
-    # Models to use
-    models = ["gpt-3.5-turbo", "gpt-4"]
+    # Model to use
+    model = "gpt-4"
 
-    for model in models:
-        # Generate notes using GPT model
-        response = openai.ChatCompletion.create(
-                      model=model,
-                      messages=[{"role": "system", "content": 'You are an assistant for creating notes based on transcriptions from films. The notes should include the main theme of the film, plus points and sub-points. Answer only in the form of notes in the language you received the text.'},
-                                {"role": "user", "content": transcription_text}
-                      ])
+    # Generate notes using GPT model
+    response = openai.ChatCompletion.create(
+                  model=model,
+                  messages=[{"role": "system", "content": 'You are an assistant for creating notes based on transcriptions from films. The notes should include the main theme of the film, plus points and sub-points. Answer only in the form of notes in the language you received the text.'},
+                            {"role": "user", "content": transcription_text}
+                  ])
 
-        # Check if the response is okay and extract the generated text
-        if response["choices"][0]["finish_reason"] == 'stop':
-            notes = response["choices"][0]["message"]["content"]
-        else:
-            raise Exception("Error generating notes using " + model)
+    # Check if the response is okay and extract the generated text
+    if response["choices"][0]["finish_reason"] == 'stop':
+        notes = response["choices"][0]["message"]["content"]
+    else:
+        raise Exception("Error generating notes using " + model)
 
-        # Save the notes on S3 and update the database record
-        notes_file_path = 'notes/' + model + '/' + os.path.basename(local_transcription_path).replace('.txt', '_' + model + '.txt')
-        s3 = boto3.resource('s3', aws_access_key_id=S3_ACCESS_KEY, aws_secret_access_key=S3_SECRET_KEY)
-        s3.Object(BUCKET_NAME, notes_file_path).put(Body=notes)
+    # Create S3 connection
+    s3 = boto3.resource('s3', aws_access_key_id=S3_ACCESS_KEY, aws_secret_access_key=S3_SECRET_KEY)
 
-        update_notes_record(record.id, notes_file_path, model)
+    # Save the notes on S3 and update the database record
+    notes_file_path = 'notes/' + model + '/' + os.path.basename(local_transcription_path).replace('.txt', '_' + model + '.txt')
+    s3.Object(BUCKET_NAME, notes_file_path).put(Body=notes)
+
+    update_notes_record(record.id, notes_file_path, model)
 
     return notes
