@@ -1,5 +1,5 @@
 
-from models import db, Transcription
+from models import db, Transcription, SocialMediaContent
 
 
 
@@ -56,3 +56,17 @@ def get_transcription_record(record_id):
     with app.app_context():
         record = Transcription.query.get(record_id)
     return record
+
+def update_social_media_content_record(record_id, model, content_type, content):
+    from app import app
+    with app.app_context():
+        # Access the Transcription record
+        record = Transcription.query.get(record_id)
+        if record is not None:
+            # Update the corresponding social media content
+            social_media_content = SocialMediaContent.query.filter_by(transcription_id=record_id).first()
+            if social_media_content is None:
+                social_media_content = SocialMediaContent(transcription_id=record.id)
+                db.session.add(social_media_content)
+            setattr(social_media_content, f'{content_type}_{model.replace(".", "")}', content)
+            db.session.commit()

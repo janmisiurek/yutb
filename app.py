@@ -7,9 +7,9 @@ from aws_utils import *
 from rq import Queue
 from worker import conn
 from rq.job import Job
-from models import db, Transcription
+from models import db, Transcription, SocialMediaContent
 import tempfile
-
+from openai_utils import generate_social_media_content
 import logging
 
 import time
@@ -107,28 +107,44 @@ def dashboard2():
         transcriptions = Transcription.query.all()
     return render_template('dashboard2.html', transcriptions=transcriptions)
 
-@app.route('/notes/<record_id>')
+@app.route('/notes/<record_id>', methods=['GET', 'POST'])
 @auth.login_required
 def notes(record_id):
+    # Get the transcription record
     transcription = Transcription.query.get(record_id)
     if not transcription:
         abort(404, description="Record not found")
 
-    local_path_gpt3 = os.path.join(tempfile.gettempdir(), f"{record_id}_gpt3.txt")
+    # Download the notes from S3
     local_path_gpt4 = os.path.join(tempfile.gettempdir(), f"{record_id}_gpt4.txt")
-
-    download_from_s3(BUCKET_NAME, transcription.notes_url_gpt3, local_path_gpt3)
     download_from_s3(BUCKET_NAME, transcription.notes_url_gpt4, local_path_gpt4)
 
     with open(local_path_gpt4, 'r') as file:
         notes_gpt4 = file.read().replace('\n', '<br>')
+
+    # If the form was submitted, generate the selected types of social media content
+    if request.method == 'POST':
+        content_types = request.form.getlist('content_types')
+        
+        try:
+            logging.info(f'Adding generate_social_media_content job for record_id: {record_id}')
+            job = q.enqueue(generate_social_media_content, record_id, content_types)
+            logging.info(f'Added generate_social_media_content job with id: {job.id}')
+        except Exception as e:
+            logging.error(f"Error generating social media content: {str(e)}")
+            return abort(400, f"Error generating social media content: {str(e)}")
+
+        flash("Social media content generation in progress")
+
+    # Get the social media content record
+    social_media_content = SocialMediaContent.query.filter_by(transcription_id=record_id).first()
+
     os.remove(local_path_gpt4)
 
-    with open(local_path_gpt3, 'r') as file:
-        notes_gpt3 = file.read().replace('\n', '<br>')
-    os.remove(local_path_gpt3)
-
-    return render_template('notes.html', name=transcription.name, notes_gpt3=notes_gpt3, notes_gpt4=notes_gpt4)
+    return render_template('notes.html', 
+                           name=transcription.name, 
+                           notes_gpt4=notes_gpt4, 
+                           social_media_content=social_media_content)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -10,11 +10,29 @@
 
         <h1>{{ name }}</h1>
 
+        {% if social_media_content %}
+        <table>
+            <tr>
+                <th>GPT-3.5</th>
+                <th>GPT-4</th>
+            </tr>
+            <tr>
+                <td>{{ social_media_content.tweet_gpt35 }}</td>
+                <td>{{ social_media_content.tweet_gpt4 }}</td>
+            </tr>
+            <tr>
+                <td>{{ social_media_content.tweet_thread_gpt35 }}</td>
+                <td>{{ social_media_content.tweet_thread_gpt4 }}</td>
+            </tr>
+            <tr>
+                <td>{{ social_media_content.linkedin_post_gpt35 }}</td>
+                <td>{{ social_media_content.linkedin_post_gpt4 }}</td>
+            </tr>
+        </table>
+        {% endif %}
+
         <h2>GPT-4 Notes</h2>
         <p>{{ notes_gpt4|safe }}</p>
-
-        <h2>GPT-3 Notes</h2>
-        <p>{{ notes_gpt3|safe }}</p>
 
         <p>
             <a href="{{ url_for('dashboard2') }}">Powrót do dashboard</a>

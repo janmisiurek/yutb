@@ -6,6 +6,9 @@ from worker import conn
 import boto3
 from tasks import update_transcript_record, get_audio_record, update_notes_record, get_transcription_record
 from aws_utils import download_from_s3
+from models import Transcription, SocialMediaContent
+import tempfile
+from tasks import update_social_media_content_record
 
 load_dotenv()
 S3_ACCESS_KEY = os.getenv("S3_ACCESS_KEY")
@@ -90,3 +93,42 @@ def generate_notes(record_id):
     update_notes_record(record.id, notes_file_path, model)
 
     return notes
+
+@job('default', connection=conn, timeout=3600)
+def generate_social_media_content(record_id, content_types):
+    # Get the transcription record
+    record = get_transcription_record(record_id)
+    if record is None:
+        raise Exception("No record found with id " + str(record_id))
+    
+    # Download the notes from S3
+    notes_local_path = os.path.join(tempfile.gettempdir(), 'notes.txt')
+    download_from_s3(BUCKET_NAME, record.notes_url_gpt4, notes_local_path)
+    with open(notes_local_path, 'r') as file:
+        notes = file.read()
+    
+    # Generate social media content using GPT models for each content type
+    for model in ['gpt-3.5-turbo', 'gpt-4']:
+        for content_type in content_types:
+            # Print the type of content being generated and the model
+            print(f"Generating {content_type} content using {model}...")
+            
+            # Prepare the system message
+            system_message = f'You are an assistant for creating {content_type} content based on notes. In response use language of note'
+            
+            # Generate social media content using GPT model
+            response = openai.ChatCompletion.create(
+                          model=model,
+                          messages=[{"role": "system", "content": system_message},
+                                    {"role": "user", "content": notes}
+                          ])
+
+            # Check if the response is okay and extract the generated text
+            if response["choices"][0]["finish_reason"] == 'stop':
+                content = response["choices"][0]["message"]["content"]
+            else:
+                raise Exception(f"Error generating {content_type} content using {model}")
+
+            # Update the record
+            update_social_media_content_record(record_id, model, content_type, content)
+            print(f"Updated {content_type} content for model {model} in database.")
