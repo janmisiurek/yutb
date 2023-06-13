@@ -114,7 +114,7 @@ def generate_social_media_content(record_id, content_types):
             print(f"Generating {content_type} content using {model}...")
             
             # Prepare the system message
-            system_message = f'You are an assistant for creating {content_type} content based on notes. In response use language of note'
+            system_message = f'You are an assistant for creating {content_type} content based on notes about youtube film, describing and encouraging the viewing of the film. In response use language of note'
             
             # Generate social media content using GPT model
             response = openai.ChatCompletion.create(
