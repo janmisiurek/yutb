@@ -29,16 +29,16 @@
                 <th>GPT-4</th>
             </tr>
             <tr>
-                <td>{{ social_media_content.tweet_gpt35 }}</td>
-                <td>{{ social_media_content.tweet_gpt4 }}</td>
+                <td>{{ social_media_content.tweet_gpt35|safe }}</td>
+                <td>{{ social_media_content.tweet_gpt4|safe }}</td>
             </tr>
             <tr>
-                <td>{{ social_media_content.tweet_thread_gpt35 }}</td>
-                <td>{{ social_media_content.tweet_thread_gpt4 }}</td>
+                <td>{{ social_media_content.tweet_thread_gpt35|safe }}</td>
+                <td>{{ social_media_content.tweet_thread_gpt4|safe }}</td>
             </tr>
             <tr>
-                <td>{{ social_media_content.linkedin_post_gpt35 }}</td>
-                <td>{{ social_media_content.linkedin_post_gpt4 }}</td>
+                <td>{{ social_media_content.linkedin_post_gpt35|safe }}</td>
+                <td>{{ social_media_content.linkedin_post_gpt4|safe }}</td>
             </tr>
         </table>
         {% endif %}

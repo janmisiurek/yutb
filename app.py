@@ -139,6 +139,14 @@ def notes(record_id):
     # Get the social media content record
     social_media_content = SocialMediaContent.query.filter_by(transcription_id=record_id).first()
 
+    if social_media_content:
+        social_media_content.tweet_gpt35 = social_media_content.tweet_gpt35.replace('\n', '<br>')
+        social_media_content.tweet_gpt4 = social_media_content.tweet_gpt4.replace('\n', '<br>')
+        social_media_content.tweet_thread_gpt35 = social_media_content.tweet_thread_gpt35.replace('\n', '<br>')
+        social_media_content.tweet_thread_gpt4 = social_media_content.tweet_thread_gpt4.replace('\n', '<br>')
+        social_media_content.linkedin_post_gpt35 = social_media_content.linkedin_post_gpt35.replace('\n', '<br>')
+        social_media_content.linkedin_post_gpt4 = social_media_content.linkedin_post_gpt4.replace('\n', '<br>')
+
     os.remove(local_path_gpt4)
 
     return render_template('notes.html', 
