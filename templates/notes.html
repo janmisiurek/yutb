@@ -13,10 +13,24 @@
                 color: #faffe1;
                 padding-bottom: 15px;
             }
-            form {
+            .form-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
                 margin: 20px 0;
+            }
+            .form-header h3 {
+                margin-bottom: 0;
+            }
+            .form-header button {
+                font-size: 1.17em; /* Equal to h3 size */
+            }
+            form {
                 padding: 20px;
                 background-color: rgba(0, 0, 0, 0.3);
+            }
+            .form-check {
+                padding-left: 40px;
             }
             input[type="checkbox"] {
                 transform: scale(1.5);
@@ -48,18 +62,24 @@
 
         <h1>{{ name }}</h1>
 
+        <div>        
         <form method="POST">
-            <h3>Generate Social Media Content:</h3>
-            <input type="checkbox" id="tweet" name="content_types" value="tweet">
-            <label for="tweet">Tweet</label><br>
-            <input type="checkbox" id="tweet_thread" name="content_types" value="tweet_thread">
-            <label for="tweet_thread">Tweet Thread</label><br>
-            <input type="checkbox" id="linkedin_post" name="content_types" value="linkedin_post">
-            <label for="linkedin_post">LinkedIn Post</label><br>
-            <input type="submit" value="Generate">
+            <h3>
+                <button type="submit" style="vertical-align: middle">G E N R A T E</button>
+                S O C I A L&nbsp;&nbsp;M E D I A &nbsp;&nbsp;C O N T E N T
+
+            </h3>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="tweet" name="content_types" value="tweet">
+                <label class="form-check-label" for="tweet">Tweet</label><br>
+                <input type="checkbox" class="form-check-input" id="tweet_thread" name="content_types" value="tweet_thread">
+                <label class="form-check-label" for="tweet_thread">Tweet Thread</label><br>
+                <input type="checkbox" class="form-check-input" id="linkedin_post" name="content_types" value="linkedin_post">
+                <label class="form-check-label" for="linkedin_post">LinkedIn Post</label><br>
+            </div>
         </form>
         <br>
-
+    </div>
         {% if social_media_content %}
         <table>
             <tr>
@@ -80,6 +100,8 @@
             </tr>
         </table>
         {% endif %}
+
+   
 
         <h2>GPT-4 Notes</h2>
         <p>{{ notes_gpt4|safe }}</p>
