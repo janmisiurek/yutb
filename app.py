@@ -140,12 +140,11 @@ def notes(record_id):
     social_media_content = SocialMediaContent.query.filter_by(transcription_id=record_id).first()
 
     if social_media_content:
-        social_media_content.tweet_gpt35 = social_media_content.tweet_gpt35.replace('\n', '<br>')
-        social_media_content.tweet_gpt4 = social_media_content.tweet_gpt4.replace('\n', '<br>')
-        social_media_content.tweet_thread_gpt35 = social_media_content.tweet_thread_gpt35.replace('\n', '<br>')
-        social_media_content.tweet_thread_gpt4 = social_media_content.tweet_thread_gpt4.replace('\n', '<br>')
-        social_media_content.linkedin_post_gpt35 = social_media_content.linkedin_post_gpt35.replace('\n', '<br>')
-        social_media_content.linkedin_post_gpt4 = social_media_content.linkedin_post_gpt4.replace('\n', '<br>')
+        fields = ['tweet_gpt35', 'tweet_gpt4', 'tweet_thread_gpt35', 'tweet_thread_gpt4', 'linkedin_post_gpt35', 'linkedin_post_gpt4']
+        for field in fields:
+            field_content = getattr(social_media_content, field)
+            if field_content:
+                setattr(social_media_content, field, field_content.replace('\n', '<br>'))
 
     os.remove(local_path_gpt4)
 
