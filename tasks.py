@@ -1,6 +1,6 @@
 
 from models import db, Transcription, SocialMediaContent
-import re
+
 
 
 def create_audio_record(name, yt_url, audio_url):
@@ -70,7 +70,8 @@ def update_social_media_content_record(record_id, model, content_type, content):
                 db.session.add(social_media_content)
             
             # Remove '.' and '-' from the model name
-            model_name = re.sub(r'[.-]|turbo|single', '', model)
+            model_name = model.replace(".", "").replace("-", "")
+            content_type = content_type.replace("_single", "")
             print(f'{content_type}_{model_name}')
             setattr(social_media_content, f'{content_type}_{model_name}', content)
             db.session.commit()
