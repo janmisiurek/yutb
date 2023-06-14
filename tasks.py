@@ -68,5 +68,7 @@ def update_social_media_content_record(record_id, model, content_type, content):
             if social_media_content is None:
                 social_media_content = SocialMediaContent(transcription_id=record.id)
                 db.session.add(social_media_content)
+            
+            print(f'{content_type}_{model.replace(".", "")}')
             setattr(social_media_content, f'{content_type}_{model.replace(".", "")}', content)
             db.session.commit()
