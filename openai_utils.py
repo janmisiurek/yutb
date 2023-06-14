@@ -73,7 +73,7 @@ def generate_notes(record_id):
     # Generate notes using GPT model
     response = openai.ChatCompletion.create(
                   model=model,
-                  messages=[{"role": "system", "content": 'You are an assistant for creating notes based on transcriptions from films. The notes should include the main theme of the film, plus points and sub-points. Answer only in the form of notes in the language you received the text.'},
+                  messages=[{"role": "system", "content": 'You are an assistant for creating notes based on transcriptions from films. The notes should include the main theme of the film, plus points and sub-points and be useful for creating content for social media. Answer only in the form of notes in the language you received the text.'},
                             {"role": "user", "content": transcription_text}
                   ])
 
@@ -114,7 +114,7 @@ def generate_social_media_content(record_id, content_types):
             print(f"Generating {content_type} content using {model}...")
             
             # Prepare the system message
-            system_message = f'You are an assistant for creating {content_type} content based on notes about youtube film, describing and encouraging the viewing of the film. In response use language of note'
+            system_message = f'You are an assistant for creating {content_type} content based on notes about youtube film, describing and encouraging the viewing of the film. Answer only in the language you received the text.'
             
             # Generate social media content using GPT model
             response = openai.ChatCompletion.create(
