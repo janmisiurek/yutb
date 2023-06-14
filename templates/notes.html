@@ -12,11 +12,20 @@
 
         <form method="POST">
             <h3>Generate Social Media Content:</h3>
-            <input type="checkbox" id="tweet" name="content_types" value="tweet">
+            <label class="switch">
+              <input type="checkbox" id="tweet" name="content_types" value="tweet">
+              <span class="slider"></span>
+            </label>
             <label for="tweet">Tweet</label><br>
-            <input type="checkbox" id="tweet_thread" name="content_types" value="tweet_thread">
+            <label class="switch">
+              <input type="checkbox" id="tweet_thread" name="content_types" value="tweet_thread">
+              <span class="slider"></span>
+            </label>
             <label for="tweet_thread">Tweet Thread</label><br>
-            <input type="checkbox" id="linkedin_post" name="content_types" value="linkedin_post">
+            <label class="switch">
+              <input type="checkbox" id="linkedin_post" name="content_types" value="linkedin_post">
+              <span class="slider"></span>
+            </label>
             <label for="linkedin_post">LinkedIn Post</label><br>
             <input type="submit" value="Generate">
         </form>

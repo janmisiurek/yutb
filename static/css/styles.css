@@ -1,34 +1,113 @@
 body {
     background: linear-gradient(to right, #0f0c29, #24243e, #24243e);
     color: #faffe1;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}
+
+.container {
+    margin: 0 auto;
+    padding: 30px;
+}
+
+h1, h2, h3 {
+    line-height: 1.2;
 }
 
 a {
-    text-decoration: none; /* Usunięcie podkreślenia */
-    transition: background-color 0.3s ease; /* Płynna zmiana koloru tła */
+    color: #faffe1;
+    text-decoration: none;
 }
 
 a:hover {
-    color: #f6ffc9; /* Kolor tekstu dla linków po najechaniu */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Efekt cienia przy najechaniu */
-    text-decoration: none; /* Usunięcie podkreślenia po najechaniu */
+    color: #327ab7;
+    text-decoration: none;
 }
 
-/* Style dla linków na belce nawigacyjnej */
 .navbar a {
-    color: #faffe1 !important;
+    color: #faffe1;
 }
 
 .navbar a:hover {
-    color: #327ab7 !important;
-    text-decoration: none; /* Usunięcie podkreślenia po najechaniu */
+    color: #327ab7;
+    text-decoration: none;
 }
 
 .table-dark {
-    background-color: rgba(0, 0, 0, 0.3) !important;
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
-.slider-container {
-    width: 400px; /* Suma szerokości formularza i przycisku */
+/* Styl dla checkboxów jako przełączników */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
 }
 
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+/* Styl dla tabeli */
+table {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #faffe1;
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #24243e;
+    color: #faffe1;
+}
+
+tr:nth-child(even) {
+    background-color: #0f0c29;
+    color: #faffe1;
+}
