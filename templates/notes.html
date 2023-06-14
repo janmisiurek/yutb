@@ -8,6 +8,44 @@
 <body>
     <div class="container">
 
+        <style>
+            h1, h2, h3 {
+                color: #faffe1;
+                padding-bottom: 15px;
+            }
+            form {
+                margin: 20px 0;
+                padding: 20px;
+                background-color: rgba(0, 0, 0, 0.3);
+            }
+            input[type="checkbox"] {
+                transform: scale(1.5);
+                margin-right: 10px;
+            }
+            table {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 20px;
+                border-collapse: separate;
+                border-spacing: 0 15px;
+            }
+            th, td {
+                padding: 15px;
+                background-color: rgba(0, 0, 0, 0.3);
+            }
+            a {
+                padding: 10px 20px;
+                background-color: rgba(0, 0, 0, 0.3);
+                color: #faffe1;
+                transition: all 0.3s ease;
+                border-radius: 5px;
+            }
+            a:hover {
+                color: #327ab7;
+                text-decoration: none;
+            }
+        </style>
+
         <h1>{{ name }}</h1>
 
         <form method="POST">
