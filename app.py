@@ -41,6 +41,7 @@ def index():
     if request.method == 'POST':
         url = request.form.get('url')
         tempo = request.form.get('tempo')
+        content_types = request.form.getlist('content_types')
 
         if not url:
             return abort(400, 'No URL provided')
@@ -53,11 +54,15 @@ def index():
             job = q.enqueue(download_transcribe_generate_notes, url, tempo)
             logging.info(f'Added download_transcribe_create_notes job with id: {job.id}')
             
+            if content_types:
+                logging.info(f'Adding generate_social_media_content job for job_id: {job.id}')
+                q.enqueue(generate_social_media_content, job.id, content_types)
+                logging.info(f'Added generate_social_media_content job with job id: {job.id}')
         except Exception as e:
             logging.error(f"Error downloading, transcribing, and creating notes: {str(e)}")
             return abort(400, f"Error downloading, transcribing, and creating notes: {str(e)}")
 
-        flash("Transcription and note creation in progress")
+        flash("Transcription, note creation and social media content generation in progress")
         return redirect(url_for('dashboard2'))
     
     return render_template('index.html')
