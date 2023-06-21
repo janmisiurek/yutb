@@ -48,6 +48,22 @@ def transcript(id):
     print('updated')
     return text
 
+def generate_text_with_model(model, system_message, user_message):
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_message}
+        ]
+    )
+
+    if response["choices"][0]["finish_reason"] == 'stop':
+        content = response["choices"][0]["message"]["content"]
+    else:
+        raise Exception("Error generating content using " + model)
+
+    return content
+
 @job('default', connection=conn, timeout=3600)
 def generate_notes(record_id):
     # Fetch the record from the database
@@ -71,17 +87,8 @@ def generate_notes(record_id):
     model = "gpt-4"
 
     # Generate notes using GPT model
-    response = openai.ChatCompletion.create(
-                  model=model,
-                  messages=[{"role": "system", "content": 'You are an assistant for creating notes based on transcriptions from films. The notes should include the main theme of the film, plus points and sub-points and be useful for creating content for social media. Answer only in the form of notes in the language you received the text.'},
-                            {"role": "user", "content": transcription_text}
-                  ])
-
-    # Check if the response is okay and extract the generated text
-    if response["choices"][0]["finish_reason"] == 'stop':
-        notes = response["choices"][0]["message"]["content"]
-    else:
-        raise Exception("Error generating notes using " + model)
+    system_message = 'You are an assistant for creating notes based on transcriptions from films. The notes should include the main theme of the film, plus points and sub-points and be useful for creating content for social media. Answer only in the form of notes in the language you received the text.'
+    notes = generate_text_with_model(model, system_message, transcription_text)
 
     # Create S3 connection
     s3 = boto3.resource('s3', aws_access_key_id=S3_ACCESS_KEY, aws_secret_access_key=S3_SECRET_KEY)
@@ -117,18 +124,10 @@ def generate_social_media_content(record_id, content_types):
             system_message = f'You are an assistant for creating {content_type} content based on notes about youtube film, describing and encouraging the viewing of the film. Answer only in the language you received the text.'
             
             # Generate social media content using GPT model
-            response = openai.ChatCompletion.create(
-                          model=model,
-                          messages=[{"role": "system", "content": system_message},
-                                    {"role": "user", "content": notes}
-                          ])
+            content = generate_text_with_model(model, system_message, notes)
 
             # Check if the response is okay and extract the generated text
-            if response["choices"][0]["finish_reason"] == 'stop':
-                content = response["choices"][0]["message"]["content"]
-                print(f"Generated content: {content}")
-            else:
-                raise Exception(f"Error generating {content_type} content using {model}")
+            print(f"Generated content: {content}")
 
             # Update the record
             update_social_media_content_record(record_id, model, content_type, content)
