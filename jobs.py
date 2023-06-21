@@ -1,6 +1,6 @@
 from rq.decorators import job
 from worker import conn
-from rq import Queue, Connection
+from rq import Queue
 from rq.decorators import job
 from redis import Redis
 
@@ -8,7 +8,6 @@ from youtube_utils import download_audio
 from openai_utils import transcript, generate_notes, generate_social_media_content
 
 redis_conn = Redis()
-conn = Connection(redis_conn)
 q = Queue(connection=conn)
 
 # Helper function combines the download, transcript, and create_notes functions for asynchronous execution as an RQ job
