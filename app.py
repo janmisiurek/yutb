@@ -52,11 +52,12 @@ def index():
         try:
             logging.info(f'Adding download_transcribe_create_notes job for url: {url}')
             job = q.enqueue(download_transcribe_generate_notes, url, tempo)
+            record_id = job.result  # Get the record_id
             logging.info(f'Added download_transcribe_create_notes job with id: {job.id}')
             
             if content_types:
-                logging.info(f'Adding generate_social_media_content job for job_id: {job.id}')
-                q.enqueue(generate_social_media_content, job.id, content_types)
+                logging.info(f'Adding generate_social_media_content job for record_id: {record_id}')
+                q.enqueue(generate_social_media_content, record_id, content_types)
                 logging.info(f'Added generate_social_media_content job with job id: {job.id}')
         except Exception as e:
             logging.error(f"Error downloading, transcribing, and creating notes: {str(e)}")
@@ -66,6 +67,7 @@ def index():
         return redirect(url_for('dashboard2'))
     
     return render_template('index.html')
+
 
 
 

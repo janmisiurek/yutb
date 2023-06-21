@@ -8,4 +8,5 @@ from openai_utils import transcript, generate_notes
 def download_transcribe_generate_notes(url, tempo):
     record_id = download_audio(url, tempo)
     transcript(record_id)
-    return generate_notes(record_id)
+    generate_notes(record_id)
+    return record_id
