@@ -2,13 +2,14 @@ from flask import Flask, render_template, request, abort, redirect, url_for, sen
 from flask_httpauth import HTTPBasicAuth
 from dotenv import load_dotenv
 import os
-from jobs import download_and_transcribe
+from jobs import download_transcribe_generate_notes
 from aws_utils import *
 from rq import Queue
 from worker import conn
 from rq.job import Job
-from models import db, Transcription
-
+from models import db, Transcription, SocialMediaContent
+import tempfile
+from openai_utils import generate_social_media_content
 import logging
 
 import time
@@ -48,18 +49,19 @@ def index():
             return abort(400, 'No tempo provided')
 
         try:
-            logging.info(f'Adding download_and_transcribe job for url: {url}')
-            job = q.enqueue(download_and_transcribe, url, tempo)
-            logging.info(f'Added download_and_transcribe job with id: {job.id}')
+            logging.info(f'Adding download_transcribe_create_notes job for url: {url}')
+            job = q.enqueue(download_transcribe_generate_notes, url, tempo)
+            logging.info(f'Added download_transcribe_create_notes job with id: {job.id}')
             
         except Exception as e:
-            logging.error(f"Error downloading and transcribing audio: {str(e)}")
-            return abort(400, f"Error downloading and transcribing audio: {str(e)}")
+            logging.error(f"Error downloading, transcribing, and creating notes: {str(e)}")
+            return abort(400, f"Error downloading, transcribing, and creating notes: {str(e)}")
 
-        flash("Transcription in progress")
+        flash("Transcription and note creation in progress")
         return redirect(url_for('dashboard2'))
     
     return render_template('index.html')
+
 
 
 
@@ -105,6 +107,51 @@ def dashboard2():
         transcriptions = Transcription.query.all()
     return render_template('dashboard2.html', transcriptions=transcriptions)
 
+@app.route('/notes/<record_id>', methods=['GET', 'POST'])
+@auth.login_required
+def notes(record_id):
+    # Get the transcription record
+    transcription = Transcription.query.get(record_id)
+    if not transcription:
+        abort(404, description="Record not found")
+
+    # Download the notes from S3
+    local_path_gpt4 = os.path.join(tempfile.gettempdir(), f"{record_id}_gpt4.txt")
+    download_from_s3(BUCKET_NAME, transcription.notes_url_gpt4, local_path_gpt4)
+
+    with open(local_path_gpt4, 'r') as file:
+        notes_gpt4 = file.read().replace('\n', '<br>')
+
+    # If the form was submitted, generate the selected types of social media content
+    if request.method == 'POST':
+        content_types = request.form.getlist('content_types')
+        
+        try:
+            logging.info(f'Adding generate_social_media_content job for record_id: {record_id}')
+            job = q.enqueue(generate_social_media_content, record_id, content_types)
+            logging.info(f'Added generate_social_media_content job with id: {job.id}')
+        except Exception as e:
+            logging.error(f"Error generating social media content: {str(e)}")
+            return abort(400, f"Error generating social media content: {str(e)}")
+
+        flash("Social media content generation in progress")
+
+    # Get the social media content record
+    social_media_content = SocialMediaContent.query.filter_by(transcription_id=record_id).first()
+
+    if social_media_content:
+        fields = ['tweet_gpt35', 'tweet_gpt4', 'tweet_thread_gpt35', 'tweet_thread_gpt4', 'linkedin_post_gpt35', 'linkedin_post_gpt4']
+        for field in fields:
+            field_content = getattr(social_media_content, field)
+            if field_content:
+                setattr(social_media_content, field, field_content.replace('\n', '<br>'))
+
+    os.remove(local_path_gpt4)
+
+    return render_template('notes.html', 
+                           name=transcription.name, 
+                           notes_gpt4=notes_gpt4, 
+                           social_media_content=social_media_content)
 
 if __name__ == '__main__':
     app.run(debug=True)

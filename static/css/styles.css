@@ -10,7 +10,8 @@ a {
 
 a:hover {
     color: #f6ffc9; /* Kolor tekstu dla linków po najechaniu */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Efekt cienia przy najechaniu */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 2px 2px 4px rgba(221, 242, 255, 0.76); /* Efekt cienia przy najechaniu */
     text-decoration: none; /* Usunięcie podkreślenia po najechaniu */
 }
 
@@ -32,3 +33,20 @@ a:hover {
     width: 400px; /* Suma szerokości formularza i przycisku */
 }
 
+button {
+    font-size: 1.17em;
+    background: none;
+    color: #6ea9dd;
+    text-shadow: none;
+    transition: all 0.3s ease;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+
+}
+
+button:hover {
+    color: #ffd792;
+    text-shadow: 0px 0px 10px #499ce2;
+    cursor: pointer;
+}
