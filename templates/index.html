@@ -20,12 +20,20 @@ Y U T B
             <input type="range" min="1" max="2" step="0.25" value="1" class="slider" id="tempo" name="tempo"><br>
             
         </div>
+
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="tweet" name="content_types" value="tweet_single">
+            <label class="form-check-label" for="tweet">Tweet</label><br>
+            <input type="checkbox" class="form-check-input" id="tweet_thread" name="content_types" value="tweet_thread">
+            <label class="form-check-label" for="tweet_thread">Tweet Thread</label><br>
+            <input type="checkbox" class="form-check-input" id="linkedin_post" name="content_types" value="linkedin_post">
+            <label class="form-check-label" for="linkedin_post">LinkedIn Post</label><br>
+        </div>
     </form>
+    
     <p>
         <a href="{{ url_for('dashboard2') }}" style=" font-size: 16px; margin-right: 18px;">D A S H B O A R D</a>
-        
         <a href="{{ url_for('dashboard') }}" style=" font-size: 16px;">S 3&nbsp;&nbsp;F I L E S</a>
-
     </p>
 </div>
 
@@ -38,3 +46,4 @@ Y U T B
 </script>
 
 {% endblock %}
+

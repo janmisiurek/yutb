@@ -34,13 +34,13 @@ def verify_password(username, password):
     correct_username = os.getenv("YUTB_USERNAME")
     correct_password = os.getenv("YUTB_PASSWORD")
     return (username == correct_username and password == correct_password)
-
 @app.route('/', methods=['GET', 'POST'])
 @auth.login_required
 def index():
     if request.method == 'POST':
         url = request.form.get('url')
         tempo = request.form.get('tempo')
+        content_types = request.form.getlist('content_types')
 
         if not url:
             return abort(400, 'No URL provided')
@@ -50,19 +50,16 @@ def index():
 
         try:
             logging.info(f'Adding download_transcribe_create_notes job for url: {url}')
-            job = q.enqueue(download_transcribe_generate_notes, url, tempo)
+            job = q.enqueue(download_transcribe_generate_notes, url, tempo, content_types)
             logging.info(f'Added download_transcribe_create_notes job with id: {job.id}')
-            
         except Exception as e:
             logging.error(f"Error downloading, transcribing, and creating notes: {str(e)}")
             return abort(400, f"Error downloading, transcribing, and creating notes: {str(e)}")
 
-        flash("Transcription and note creation in progress")
+        flash("Transcription, note creation and social media content generation in progress")
         return redirect(url_for('dashboard2'))
     
     return render_template('index.html')
-
-
 
 
 @app.route("/job/<job_id>", methods=['GET'])
