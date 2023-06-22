@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}
+    YUTB
+{% endblock %}
+
+
+{% block content %}
+<div class="text-center" style="max-width: 800px; margin: 0 auto;">
+    <h1>Y U T B</h1>
+    <p>YUTB is a social media content creation tool based on YouTube footage. The operation of the apppcation is based on technologies developed by OpenAI and consists of three main stages:</p>
+    <br>
+    <p>- Creation of a transcription based on the audio extracted from the video</p>
+    <p>- A note about the film is created on the basis of the transcription</p>
+    <p>- The final stage is the generation of social media content based on the information contained in the note</p>
+    <br>
+    <p>If you want to learn more about the technical aspects of my apppcation, take a look at its <a href="https://github.com/janmisiurek/yutb">repositories on GitHub</a>.</p>
+
+    <p>You are welcome to see examples of generated content on the dashboard, and to try out the app on your own film (pnkedIn account required).</p>
+
+    <p>
+        <a href="{{ url_for('dashboard2') }}" style=" font-size: 16px; margin-right: 18px;">D A S H B O A R D</a>
+        <a href="{{ url_for('index') }}" style=" font-size: 16px;">T R Y&nbsp;&nbsp;O U T</a>
+    </p>
+</div>
+{% endblock %}

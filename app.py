@@ -29,11 +29,18 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+
+
 @auth.verify_password
 def verify_password(username, password):
     correct_username = os.getenv("YUTB_USERNAME")
     correct_password = os.getenv("YUTB_PASSWORD")
     return (username == correct_username and password == correct_password)
+
+@app.route('/home', methods=['GET'])
+def home():
+    return render_template('home.html')
+
 @app.route('/', methods=['GET', 'POST'])
 @auth.login_required
 def index():
