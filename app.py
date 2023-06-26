@@ -63,7 +63,7 @@ def verify_password(username, password):
     correct_password = os.getenv("YUTB_PASSWORD")
     return (username == correct_username and password == correct_password)
 
-@app.route('/home', methods=['GET'])
+@app.route('/', methods=['GET'])
 def home():
     return render_template('home.html')
 
@@ -94,6 +94,12 @@ def authorize():
 
     return redirect(url_for('welcome', user_id=user.id))
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have logged out.')
+    return redirect(url_for('home'))
 
 @app.route('/welcome/<user_id>')
 def welcome(user_id):
@@ -103,7 +109,7 @@ def welcome(user_id):
 
     return render_template("welcome.html", user=user)
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/playground', methods=['GET', 'POST'])
 @login_required
 def index():
     if request.method == 'POST':
