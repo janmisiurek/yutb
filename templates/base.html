@@ -23,7 +23,7 @@
                 {% if current_user.is_authenticated %}
                     <li><a href="#" style="color: inherit; pointer-events: none;">T O K E N S: {{ current_user.tokens }}</a></li>
 
-                    <li><a href="{{ url_for('dashboard2') }}">D A S H B O A R D</a></li>
+                    <li><a href="{{ url_for('user_dashboard') }}">D A S H B O A R D</a></li>
                     <li><a href="{{ url_for('logout') }}">L O G O U T</a></li>
                 {% else %}
                     <li><a href="{{ url_for('login') }}">L O G I N</a></li>

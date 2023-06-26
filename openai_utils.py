@@ -16,11 +16,10 @@ S3_SECRET_KEY = os.getenv("S3_SECRET_KEY")
 BUCKET_NAME = os.getenv('BUCKET_NAME')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-
 @job('default', connection=conn, timeout=3600)
-def transcript(id):
+def transcript(id, user):
     # Fetch the record from the database
-    record = get_audio_record(id)
+    record = get_audio_record(id, user)
 
     # If the record does not exist or it has no audio_url, we cannot proceed
     if record is None or record.audio_url is None:
@@ -44,7 +43,7 @@ def transcript(id):
 
     # Update the database record
     print('updating record')
-    update_transcript_record(record.id, transcription_file_path)
+    update_transcript_record(record.id, transcription_file_path, user)
     print('updated')
     return text
 

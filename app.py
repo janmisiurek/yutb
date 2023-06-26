@@ -125,7 +125,7 @@ def index():
 
         try:
             logging.info(f'Adding download_transcribe_create_notes job for url: {url}')
-            job = q.enqueue(download_transcribe_generate_notes, url, tempo, content_types)
+            job = q.enqueue(download_transcribe_generate_notes, url, tempo, content_types, current_user)
             logging.info(f'Added download_transcribe_create_notes job with id: {job.id}')
         except Exception as e:
             logging.error(f"Error downloading, transcribing, and creating notes: {str(e)}")
@@ -135,6 +135,7 @@ def index():
         return redirect(url_for('dashboard2'))
     
     return render_template('index.html')
+
 
 
 @app.route("/job/<job_id>", methods=['GET'])
@@ -178,6 +179,14 @@ def dashboard2():
     with app.app_context():
         transcriptions = Transcription.query.all()
     return render_template('dashboard2.html', transcriptions=transcriptions)
+
+@app.route('/user_dashboard', methods=['GET'])
+@login_required
+def user_dashboard():
+    user_id = current_user.get_id()
+    transcriptions = Transcription.query.filter_by(user_id=user_id).all()
+    return render_template('user_dashboard.html', transcriptions=transcriptions)
+
 
 @app.route('/notes/<record_id>', methods=['GET', 'POST'])
 @auth.login_required

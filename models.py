@@ -10,6 +10,7 @@ class Transcription(db.Model):
     audio_url = db.Column(db.String(256))
     transcript_url = db.Column(db.String(256))
     notes_url_gpt4 = db.Column(db.String(256))
+    user_id = db.Column(db.String, db.ForeignKey('user.id'))
 
 class SocialMediaContent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,3 +28,4 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(64), index=True)
     last_name = db.Column(db.String(64), index=True)
     tokens = db.Column(db.Integer, default=3)
+    transcriptions = db.relationship('Transcription', backref='user', lazy='dynamic')
