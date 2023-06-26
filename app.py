@@ -12,6 +12,8 @@ import tempfile
 from openai_utils import generate_social_media_content
 import logging
 from authlib.integrations.flask_client import OAuth
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
+
 
 load_dotenv()
 BUCKET_NAME = os.getenv('BUCKET_NAME')
@@ -26,6 +28,8 @@ auth = HTTPBasicAuth()
 oauth = OAuth(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:////tmp/test.db')
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 db.init_app(app)
 
@@ -48,6 +52,10 @@ linkedin = oauth.register(
 
 with app.app_context():
     db.create_all()
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
 
 @auth.verify_password
 def verify_password(username, password):
@@ -72,15 +80,17 @@ def authorize():
 
     user = User.query.get(profile['id'])
     if user:
+        login_user(user)
         return redirect(url_for('index'))
-    else:
-        user = User(
-            id=profile['id'], 
-            first_name=profile['localizedFirstName'], 
-            last_name=profile['localizedLastName']
-        )
-        db.session.add(user)
+
+    user = User(
+        id=profile['id'],
+        first_name=profile['localizedFirstName'],
+        last_name=profile['localizedLastName']
+    )
+    db.session.add(user)
     db.session.commit()
+    login_user(user)
 
     return redirect(url_for('welcome', user_id=user.id))
 
@@ -94,7 +104,7 @@ def welcome(user_id):
     return render_template("welcome.html", user=user)
 
 @app.route('/', methods=['GET', 'POST'])
-@auth.login_required
+@login_required
 def index():
     if request.method == 'POST':
         url = request.form.get('url')

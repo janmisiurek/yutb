@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
@@ -21,7 +22,7 @@ class SocialMediaContent(db.Model):
     linkedin_post_gpt4 = db.Column(db.Text)
     transcription = db.relationship('Transcription', backref=db.backref('social_media_contents', lazy=True))
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.String, primary_key=True)
     first_name = db.Column(db.String(64), index=True)
     last_name = db.Column(db.String(64), index=True)
