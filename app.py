@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, abort, redirect, url_for, send_from_directory, flash
+from flask import Flask, render_template, request, abort, redirect, url_for, current_app, flash
 from flask_httpauth import HTTPBasicAuth
 from dotenv import load_dotenv
 import os
@@ -130,7 +130,7 @@ def index():
 
         try:
             logging.info(f'Adding download_transcribe_create_notes job for url: {url}')
-            job = q.enqueue(download_transcribe_generate_notes, url, tempo, content_types, current_user.id)
+            job = q.enqueue(download_transcribe_generate_notes, url, tempo, content_types, current_user.id, _app=current_app._get_current_object())
             logging.info(f'Added download_transcribe_create_notes job with id: {job.id}')
         except Exception as e:
             logging.error(f"Error downloading, transcribing, and creating notes: {str(e)}")
