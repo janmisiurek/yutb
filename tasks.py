@@ -3,12 +3,13 @@ from models import db, Transcription, SocialMediaContent
 
 
 
-def create_audio_record(name, yt_url, audio_url):
+def create_audio_record(name, yt_url, audio_url, user):
     from app import app
     record = Transcription(
         name=name,
         yt_url=yt_url,
         audio_url=audio_url,
+        user_id=user.id,
     )
     with app.app_context():
         db.session.add(record)

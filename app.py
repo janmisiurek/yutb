@@ -130,7 +130,7 @@ def index():
 
         try:
             logging.info(f'Adding download_transcribe_create_notes job for url: {url}')
-            job = q.enqueue(download_transcribe_generate_notes, url, tempo, content_types, current_user)
+            job = q.enqueue(download_transcribe_generate_notes, url, tempo, content_types, current_user.id)
             logging.info(f'Added download_transcribe_create_notes job with id: {job.id}')
         except Exception as e:
             logging.error(f"Error downloading, transcribing, and creating notes: {str(e)}")
