@@ -6,6 +6,8 @@ from redis import Redis
 from models import User
 from youtube_utils import download_audio
 from openai_utils import transcript, generate_notes, generate_social_media_content
+from flask import current_app
+
 
 redis_conn = Redis()
 q = Queue(connection=conn)
@@ -13,13 +15,13 @@ q = Queue(connection=conn)
 # Helper function combines the download, transcript, and create_notes functions for asynchronous execution as an RQ job
 @job('default', connection=conn, timeout=7200)
 def download_transcribe_generate_notes(url, tempo, content_types, user_id):
-    user = User.query.get(user_id)
-    record_id = download_audio(url, tempo, user)
-    transcript(record_id)
-    generate_notes(record_id)
+    with current_app.app_context():
+        user = User.query.get(user_id)
+        record_id = download_audio(url, tempo, user)
+        transcript(record_id)
+        generate_notes(record_id)
 
-    if content_types:
-        q.enqueue(generate_social_media_content, record_id, content_types)
- 
-
+        if content_types:
+            q.enqueue(generate_social_media_content, record_id, content_types)
+    
     return record_id
