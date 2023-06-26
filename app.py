@@ -137,7 +137,7 @@ def index():
             return abort(400, f"Error downloading, transcribing, and creating notes: {str(e)}")
 
         flash("Transcription, note creation and social media content generation in progress")
-        return redirect(url_for('dashboard2'))
+        return redirect(url_for('user_dashboard'))
     
     return render_template('index.html')
 
