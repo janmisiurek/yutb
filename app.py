@@ -11,25 +11,44 @@ from models import db, Transcription, SocialMediaContent
 import tempfile
 from openai_utils import generate_social_media_content
 import logging
-
-import time
+from authlib.integrations.flask_client import OAuth
 
 load_dotenv()
 BUCKET_NAME = os.getenv('BUCKET_NAME')
+LINKEDIN_CLIENT_ID = os.getenv('LINKEDIN_CLIENT_ID')
+LINKEDIN_CLIENT_SECRET = os.getenv('LINKEDIN_CLIENT_SECRET')
+LINKEDIN_REDIRECT_URI = os.getenv('LINKEDIN_REDIRECT_URI')
 
 q = Queue(connection=conn)
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
+oauth = OAuth(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:////tmp/test.db')
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
 db.init_app(app)
 
+linkedin = oauth.register(
+    name='linkedin',
+    client_id=LINKEDIN_CLIENT_ID,
+    client_secret=LINKEDIN_CLIENT_SECRET,
+    access_token_url='https://www.linkedin.com/oauth/v2/accessToken',
+    access_token_params=None,
+    authorize_url='https://www.linkedin.com/oauth/v2/authorization',
+    authorize_params=None,
+    api_base_url='https://api.linkedin.com/v2/',
+    client_kwargs={
+        'scope': 'r_liteprofile r_emailaddress', 
+        'redirect_uri': LINKEDIN_REDIRECT_URI,
+        'token_endpoint_auth_method': 'client_secret_post',
+    },
+)
+
+
 with app.app_context():
+    print(os.environ)
     db.create_all()
-
-
 
 @auth.verify_password
 def verify_password(username, password):
@@ -40,6 +59,20 @@ def verify_password(username, password):
 @app.route('/home', methods=['GET'])
 def home():
     return render_template('home.html')
+
+@app.route('/login')
+def login():
+    print(os.environ)
+    redirect_uri = url_for('authorize', _external=True)
+    return linkedin.authorize_redirect(redirect_uri)
+
+@app.route('/authorize')
+def authorize():
+    print(os.environ)
+    token = linkedin.authorize_access_token()
+    response = linkedin.get('me', token=token)
+    profile = response.json()
+    return profile
 
 @app.route('/', methods=['GET', 'POST'])
 @auth.login_required
