@@ -109,6 +109,11 @@ def welcome(user_id):
 
     return render_template("welcome.html", user=user)
 
+@app.route('/help')
+@login_required
+def help():
+    return render_template('help.html')
+
 @app.route('/playground', methods=['GET', 'POST'])
 @login_required
 def index():
