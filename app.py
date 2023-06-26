@@ -114,6 +114,7 @@ def welcome(user_id):
 def help():
     return render_template('help.html')
 
+
 @app.route('/playground', methods=['GET', 'POST'])
 @login_required
 def index():
@@ -130,7 +131,7 @@ def index():
 
         try:
             logging.info(f'Adding download_transcribe_create_notes job for url: {url}')
-            job = q.enqueue(download_transcribe_generate_notes, url, tempo, content_types, current_user.id, _app=current_app._get_current_object())
+            job = q.enqueue(download_transcribe_generate_notes, url, tempo, content_types, current_user.id)
             logging.info(f'Added download_transcribe_create_notes job with id: {job.id}')
         except Exception as e:
             logging.error(f"Error downloading, transcribing, and creating notes: {str(e)}")
@@ -140,8 +141,6 @@ def index():
         return redirect(url_for('user_dashboard'))
     
     return render_template('index.html')
-
-
 
 @app.route("/job/<job_id>", methods=['GET'])
 @auth.login_required
