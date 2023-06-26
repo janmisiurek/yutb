@@ -7,7 +7,7 @@ from aws_utils import *
 from rq import Queue
 from worker import conn
 from rq.job import Job
-from models import db, Transcription, SocialMediaContent
+from models import db, Transcription, SocialMediaContent, User
 import tempfile
 from openai_utils import generate_social_media_content
 import logging
@@ -39,7 +39,7 @@ linkedin = oauth.register(
     authorize_params=None,
     api_base_url='https://api.linkedin.com/v2/',
     client_kwargs={
-        'scope': 'r_liteprofile r_emailaddress', 
+        'scope': 'r_liteprofile', 
         'redirect_uri': LINKEDIN_REDIRECT_URI,
         'token_endpoint_auth_method': 'client_secret_post',
     },
@@ -47,7 +47,6 @@ linkedin = oauth.register(
 
 
 with app.app_context():
-    print(os.environ)
     db.create_all()
 
 @auth.verify_password
@@ -62,17 +61,37 @@ def home():
 
 @app.route('/login')
 def login():
-    print(os.environ)
     redirect_uri = url_for('authorize', _external=True)
     return linkedin.authorize_redirect(redirect_uri)
 
 @app.route('/authorize')
 def authorize():
-    print(os.environ)
     token = linkedin.authorize_access_token()
     response = linkedin.get('me', token=token)
     profile = response.json()
-    return profile
+
+    user = User.query.get(profile['id'])
+    if user:
+        return redirect(url_for('index'))
+    else:
+        user = User(
+            id=profile['id'], 
+            first_name=profile['localizedFirstName'], 
+            last_name=profile['localizedLastName']
+        )
+        db.session.add(user)
+    db.session.commit()
+
+    return redirect(url_for('welcome', user_id=user.id))
+
+
+@app.route('/welcome/<user_id>')
+def welcome(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return "User not found", 404
+
+    return render_template("welcome.html", user=user)
 
 @app.route('/', methods=['GET', 'POST'])
 @auth.login_required

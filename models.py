@@ -20,3 +20,9 @@ class SocialMediaContent(db.Model):
     tweet_thread_gpt4 = db.Column(db.Text)
     linkedin_post_gpt4 = db.Column(db.Text)
     transcription = db.relationship('Transcription', backref=db.backref('social_media_contents', lazy=True))
+
+class User(db.Model):
+    id = db.Column(db.String, primary_key=True)
+    first_name = db.Column(db.String(64), index=True)
+    last_name = db.Column(db.String(64), index=True)
+    tokens = db.Column(db.Integer, default=3)
