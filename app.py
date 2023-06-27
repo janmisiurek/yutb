@@ -130,7 +130,7 @@ def index():
             return abort(400, 'No tempo provided')
         
         user = User.query.get(current_user.id)
-        if user.tokens > 1:
+        if user.tokens < 1:
             flash ('You are out of tokens')
             return redirect(url_for('user_dashboard'))
 
