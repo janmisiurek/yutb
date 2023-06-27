@@ -19,7 +19,7 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 @job('default', connection=conn, timeout=3600)
 def transcript(id, user):
     # Fetch the record from the database
-    record = get_audio_record(id, user)
+    record = get_audio_record(id)
 
     # If the record does not exist or it has no audio_url, we cannot proceed
     if record is None or record.audio_url is None:
