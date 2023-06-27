@@ -15,7 +15,7 @@ q = Queue(connection=conn)
 @job('default', connection=conn, timeout=7200)
 def download_transcribe_generate_notes(url, tempo, content_types, user):
     record_id = download_audio(url, tempo, user)
-    transcript(record_id)
+    transcript(record_id, user)
     generate_notes(record_id)
 
     if content_types:
