@@ -128,16 +128,25 @@ def index():
 
         if not tempo:
             return abort(400, 'No tempo provided')
+        
+        user = User.query.get(current_user.id)
+        if user.tokens > 1:
+            flash ('You are out of tokens')
+            return redirect(url_for('user_dashboard'))
 
         try:
             logging.info(f'Adding download_transcribe_create_notes job for url: {url}')
             job = q.enqueue(download_transcribe_generate_notes, url, tempo, content_types, current_user.id)
             logging.info(f'Added download_transcribe_create_notes job with id: {job.id}')
+
+            user.tokens -= 1
+            db.session.commit()
+
         except Exception as e:
             logging.error(f"Error downloading, transcribing, and creating notes: {str(e)}")
             return abort(400, f"Error downloading, transcribing, and creating notes: {str(e)}")
 
-        flash("Transcription, note creation and social media content generation in progress")
+        flash("Generation in progress")
         return redirect(url_for('user_dashboard'))
     
     return render_template('index.html')
