@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+
+    <h1>D A S H B O A R D</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">YouTube Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transcription in transcriptions %}
+                <tr>
+                    <td><a href="{{ url_for('notes', record_id=transcription.id) }}">{{ transcription.name }}</a></td>
+                    <td><a href="{{ transcription.yt_url }}" target="_blank">Watch on YouTube</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div style="text-align: center;">
+        <a href="{{ url_for('help') }}" style="font-size: 16px; margin-right: 18px;">H E L P</a>
+    </div>
+</div>
+{% endblock %}

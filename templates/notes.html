@@ -9,117 +9,65 @@
     <div class="container">
 
         <style>
-            h1, h2, h3 {
-                color: #faffe1;
-                padding-bottom: 15px;
-            }
-            .form-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin: 20px 0;
-            }
-            .form-header h3 {
-                margin-bottom: 0;
-            }
-            .form-header button {
-                font-size: 1.17em; /* Equal to h3 size */
-            }
-            form {
+            /* ... Twoje style CSS ... */
+            .content-container {
+                max-width: 400px;
+                margin: 0 auto;
                 padding: 20px;
-                background-color: rgba(0, 0, 0, 0.3);
-            }
-            .form-check {
-                padding-left: 40px;
-            }
-            input[type="checkbox"] {
-                transform: scale(1.5);
-                margin-right: 10px;
-            }
-            table {
-                width: 100%;
-                text-align: center;
+                border: 2px solid #1DA1F2;
+                border-radius: 15px;
+                background-color: #FFFFFF;
+                font-size: 1.2em; 
+                color: #000000;
                 margin-bottom: 20px;
-                border-collapse: separate;
-                border-spacing: 0 15px;
-            }
-            th, td {
-                padding: 15px;
-                background-color: rgba(0, 0, 0, 0.3);
-            }
-            a {
-                padding: 10px 20px;
-                background-color: rgba(0, 0, 0, 0.3);
-                color: #faffe1;
-                transition: all 0.3s ease;
-                border-radius: 5px;
-            }
-            a:hover {
-                color: #327ab7;
-                text-decoration: none;
             }
         </style>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class=flashes>
-                {% for message in messages %}
-                    <div class="alert alert-info">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-
         <h1>{{ name }}</h1>
-
         <div>        
-        <form method="POST">
-            <h3>
-                <button type="submit" style="vertical-align: middle">G E N R A T E</button>
-                S O C I A L&nbsp;&nbsp;M E D I A &nbsp;&nbsp;C O N T E N T
+            <form method="POST">
+                <h3>
+                    <button type="submit" style="vertical-align: middle">G E N E R A T E</button>
+                    S O C I A L&nbsp;&nbsp;M E D I A &nbsp;&nbsp;C O N T E N T
+    
+                </h3>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="tweet" name="content_types" value="tweet_single">
+                    <label class="form-check-label" for="tweet">T W E E T</label><br>
+                    <input type="checkbox" class="form-check-input" id="tweet_thread" name="content_types" value="tweet_thread">
+                    <label class="form-check-label" for="tweet_thread">T W E E T&nbsp;&nbsp;T H R E A D</label><br>
+                    <input type="checkbox" class="form-check-input" id="linkedin_post" name="content_types" value="linkedin_post">
+                    <label class="form-check-label" for="linkedin_post">L I N K E D I N&nbsp;&nbsp;P O S T</label><br>
+                </div>
+    
 
-            </h3>
-            <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="tweet" name="content_types" value="tweet_single">
-                <label class="form-check-label" for="tweet">Tweet</label><br>
-                <input type="checkbox" class="form-check-input" id="tweet_thread" name="content_types" value="tweet_thread">
-                <label class="form-check-label" for="tweet_thread">Tweet Thread</label><br>
-                <input type="checkbox" class="form-check-input" id="linkedin_post" name="content_types" value="linkedin_post">
-                <label class="form-check-label" for="linkedin_post">LinkedIn Post</label><br>
-            </div>
-        </form>
-        <br>
-    </div>
         {% if social_media_content %}
-        <table>
-            <tr>
-                <th>GPT-3.5</th>
-                <th>GPT-4</th>
-            </tr>
-            <tr>
-                <td>{{ social_media_content.tweet_gpt35|safe }}</td>
-                <td>{{ social_media_content.tweet_gpt4|safe }}</td>
-            </tr>
-            <tr>
-                <td>{{ social_media_content.tweet_thread_gpt35|safe }}</td>
-                <td>{{ social_media_content.tweet_thread_gpt4|safe }}</td>
-            </tr>
-            <tr>
-                <td>{{ social_media_content.linkedin_post_gpt35|safe }}</td>
-                <td>{{ social_media_content.linkedin_post_gpt4|safe }}</td>
-            </tr>
-        </table>
+        <h2>Social Media Content</h2>
+
+        <div class="content-container">
+            <h3>Tweet</h3>
+            <p>{{ social_media_content.tweet_gpt4|replace('\n', '<br>')|safe }}</p>
+        </div>
+
+        <div class="content-container">
+            <h3>Tweet Thread</h3>
+            <p>{{ social_media_content.tweet_thread_gpt4|replace('\n', '<br>')|safe }}</p>
+        </div>
+
+        <div class="content-container">
+            <h3>LinkedIn Post</h3>
+            <p>{{ social_media_content.linkedin_post_gpt4|replace('\n', '<br>')|safe }}</p>
+        </div>
+
         {% endif %}
 
-   
-
-        <h2>GPT-4 Notes</h2>
-        <p>{{ notes_gpt4|safe }}</p>
+        <h2>GPT-4</h2>
+        <div class="content-container">
+            <p>{{ notes_gpt4|replace('\n', '<br>')|safe }}</p>
+        </div>
 
         <p>
-            <a href="{{ url_for('dashboard2') }}">Powrót do dashboard</a>
+            <a href="{{ url_for('user_dashboard') }}">back to dashboard</a>
         </p>
 
     </div>

@@ -7,34 +7,35 @@ Y U T B
 {% block content %}
 <div class="text-center">
     <h1>Y U T B</h1>
-    <form method="POST" action="/" class="form-inline d-flex justify-content-center">
+    <form method="POST" action="/playground" class="form-inline d-flex justify-content-center">
         <div class="form-group mx-sm-3 mb-2">
             <label for="url" class="sr-only">youtube url:</label>
             <input type="url" class="form-control" id="url" name="url" required placeholder="YouTube URL">
         </div>
-        <button type="submit" >S U B M I T</button>
-    
+        <br>
         <br>
         <div class="form-group mx-sm-3 mb-2" style="text-align: center;">
-            <output id="tempoOutput", style="color: #f6ffc9">1</output>
-            <input type="range" min="1" max="2" step="0.25" value="1" class="slider" id="tempo" name="tempo"><br>
-            
+            <span style="display: inline; vertical-align: middle;">T E M P O :</span>
+            <output id="tempoOutput" style="display: inline; color: #f6ffc9; vertical-align: middle;">1.5</output>
+            <input type="range" min="1" max="2" step="0.25" value="1.5" class="slider" id="tempo" name="tempo"><br>
         </div>
 
         <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="tweet" name="content_types" value="tweet_single">
-            <label class="form-check-label" for="tweet">Tweet</label><br>
+            <input type="checkbox" class="form-check-input" id="tweet" name="content_types" value="tweet_single" checked>
+            <label class="form-check-label" for="tweet">T W E E T</label><br>
             <input type="checkbox" class="form-check-input" id="tweet_thread" name="content_types" value="tweet_thread">
-            <label class="form-check-label" for="tweet_thread">Tweet Thread</label><br>
+            <label class="form-check-label" for="tweet_thread">T W E E T&nbsp;&nbsp;T H R E A D</label><br>
             <input type="checkbox" class="form-check-input" id="linkedin_post" name="content_types" value="linkedin_post">
-            <label class="form-check-label" for="linkedin_post">LinkedIn Post</label><br>
+            <label class="form-check-label" for="linkedin_post">L I N K E D I N&nbsp;&nbsp;P O S T</label><br>
         </div>
+        <h3>
+            <button type="submit" >G E N E R A T E</button>
+        </h3>
+        <br>
     </form>
-    
-    <p>
-        <a href="{{ url_for('dashboard2') }}" style=" font-size: 16px; margin-right: 18px;">D A S H B O A R D</a>
-        <a href="{{ url_for('dashboard') }}" style=" font-size: 16px;">S 3&nbsp;&nbsp;F I L E S</a>
-    </p>
+
+        <a href="{{ url_for('help') }}" style=" font-size: 16px; margin-right: 18px;">H E L P</a>
+        <a href="{{ url_for('home') }}" style=" font-size: 16px; margin-right: 18px;">H O M E</a>
 </div>
 
 <script>
@@ -43,7 +44,8 @@ Y U T B
     tempoSlider.oninput = function() {
         tempoOutput.value = this.value;
     }
+    // set initial output value to match the slider
+    tempoOutput.value = tempoSlider.value;
 </script>
 
 {% endblock %}
-

@@ -3,12 +3,13 @@ from models import db, Transcription, SocialMediaContent
 
 
 
-def create_audio_record(name, yt_url, audio_url):
+def create_audio_record(name, yt_url, audio_url, user_id):
     from app import app
     record = Transcription(
         name=name,
         yt_url=yt_url,
-        audio_url=audio_url
+        audio_url=audio_url,
+        user_id=user_id,
     )
     with app.app_context():
         db.session.add(record)
@@ -19,13 +20,14 @@ def create_audio_record(name, yt_url, audio_url):
     return record_id
 
 
-def update_transcript_record(record_id, transcript_url):
+def update_transcript_record(record_id, transcript_url, user_id):
     from app import app
     with app.app_context():
-        record = Transcription.query.get(record_id)
+        record = Transcription.query.filter_by(id=record_id, user_id=user_id).first()
         if record is not None:
             record.transcript_url = transcript_url
             db.session.commit()
+
 
 
 

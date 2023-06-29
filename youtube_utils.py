@@ -7,11 +7,14 @@ import yt_dlp
 from tasks import create_audio_record
 import subprocess
 
+
+from flask_login import current_user
+
+
 load_dotenv()
 BUCKET_NAME = os.getenv('BUCKET_NAME')
 
-
-def download_audio_without_job(url, tempo):
+def download_audio_without_job(url, tempo, user):
     output_dir = 'download'
     os.makedirs(output_dir, exist_ok=True)
 
@@ -47,15 +50,11 @@ def download_audio_without_job(url, tempo):
 
     # Create a new record in the database
     name = os.path.splitext(os.path.basename(tempo_output_file))[0]
-    record_id = create_audio_record(name, url, tempo_output_file)
+    record_id = create_audio_record(name, url, tempo_output_file, user)
 
     return record_id
 
 
-           
-
-
-
 @job('default', connection=conn, timeout=3600)
-def download_audio(url, tempo):
-    return download_audio_without_job(url, tempo)
+def download_audio(url, tempo, user):
+    return download_audio_without_job(url, tempo, user)

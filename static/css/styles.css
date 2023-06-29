@@ -50,3 +50,7 @@ button:hover {
     text-shadow: 0px 0px 10px #499ce2;
     cursor: pointer;
 }
+
+label {
+    font-weight: normal;
+}

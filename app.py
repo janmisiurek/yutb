@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, abort, redirect, url_for, send_from_directory, flash
+from flask import Flask, render_template, request, abort, redirect, url_for, current_app, flash
 from flask_httpauth import HTTPBasicAuth
 from dotenv import load_dotenv
 import os
@@ -7,35 +7,116 @@ from aws_utils import *
 from rq import Queue
 from worker import conn
 from rq.job import Job
-from models import db, Transcription, SocialMediaContent
+from models import db, Transcription, SocialMediaContent, User
 import tempfile
 from openai_utils import generate_social_media_content
 import logging
+from authlib.integrations.flask_client import OAuth
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
-import time
 
 load_dotenv()
 BUCKET_NAME = os.getenv('BUCKET_NAME')
+LINKEDIN_CLIENT_ID = os.getenv('LINKEDIN_CLIENT_ID')
+LINKEDIN_CLIENT_SECRET = os.getenv('LINKEDIN_CLIENT_SECRET')
+LINKEDIN_REDIRECT_URI = os.getenv('LINKEDIN_REDIRECT_URI')
 
 q = Queue(connection=conn)
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
+oauth = OAuth(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:////tmp/test.db')
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 db.init_app(app)
 
+linkedin = oauth.register(
+    name='linkedin',
+    client_id=LINKEDIN_CLIENT_ID,
+    client_secret=LINKEDIN_CLIENT_SECRET,
+    access_token_url='https://www.linkedin.com/oauth/v2/accessToken',
+    access_token_params=None,
+    authorize_url='https://www.linkedin.com/oauth/v2/authorization',
+    authorize_params=None,
+    api_base_url='https://api.linkedin.com/v2/',
+    client_kwargs={
+        'scope': 'r_liteprofile', 
+        'redirect_uri': LINKEDIN_REDIRECT_URI,
+        'token_endpoint_auth_method': 'client_secret_post',
+    },
+)
+
+
 with app.app_context():
     db.create_all()
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
 
 @auth.verify_password
 def verify_password(username, password):
     correct_username = os.getenv("YUTB_USERNAME")
     correct_password = os.getenv("YUTB_PASSWORD")
     return (username == correct_username and password == correct_password)
-@app.route('/', methods=['GET', 'POST'])
-@auth.login_required
+
+@app.route('/', methods=['GET'])
+def home():
+    return render_template('home.html')
+
+@app.route('/login')
+def login():
+    redirect_uri = url_for('authorize', _external=True)
+    return linkedin.authorize_redirect(redirect_uri)
+
+@app.route('/authorize')
+def authorize():
+    token = linkedin.authorize_access_token()
+    response = linkedin.get('me', token=token)
+    profile = response.json()
+
+    user = User.query.get(profile['id'])
+    if user:
+        login_user(user)
+        return redirect(url_for('index'))
+
+    user = User(
+        id=profile['id'],
+        first_name=profile['localizedFirstName'],
+        last_name=profile['localizedLastName']
+    )
+    db.session.add(user)
+    db.session.commit()
+    login_user(user)
+
+    return redirect(url_for('welcome', user_id=user.id))
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have logged out.')
+    return redirect(url_for('home'))
+
+@app.route('/welcome/<user_id>')
+def welcome(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return "User not found", 404
+
+    return render_template("welcome.html", user=user)
+
+@app.route('/help')
+@login_required
+def help():
+    return render_template('help.html')
+
+
+@app.route('/playground', methods=['GET', 'POST'])
+@login_required
 def index():
     if request.method == 'POST':
         url = request.form.get('url')
@@ -47,20 +128,28 @@ def index():
 
         if not tempo:
             return abort(400, 'No tempo provided')
+        
+        user = User.query.get(current_user.id)
+        if user.tokens < 1:
+            flash ('You are out of tokens')
+            return redirect(url_for('user_dashboard'))
 
         try:
             logging.info(f'Adding download_transcribe_create_notes job for url: {url}')
-            job = q.enqueue(download_transcribe_generate_notes, url, tempo, content_types)
+            job = q.enqueue(download_transcribe_generate_notes, url, tempo, content_types, current_user.id)
             logging.info(f'Added download_transcribe_create_notes job with id: {job.id}')
+
+            user.tokens -= 1
+            db.session.commit()
+
         except Exception as e:
             logging.error(f"Error downloading, transcribing, and creating notes: {str(e)}")
             return abort(400, f"Error downloading, transcribing, and creating notes: {str(e)}")
 
-        flash("Transcription, note creation and social media content generation in progress")
-        return redirect(url_for('dashboard2'))
+        flash("Generation in progress, its can up to few minutes.")
+        return redirect(url_for('user_dashboard'))
     
     return render_template('index.html')
-
 
 @app.route("/job/<job_id>", methods=['GET'])
 @auth.login_required
@@ -74,6 +163,27 @@ def job_status(job_id):
     else:
         return "Job is still in progress"
 
+@app.route('/example_dashboard')
+def example_dashboard():
+    example_transcriptions_ids = [1, 3, 2] 
+
+    transcriptions = Transcription.query.filter(Transcription.id.in_(example_transcriptions_ids)).all()
+    transcriptions_data = []
+
+    for transcription in transcriptions:
+        social_media_contents = SocialMediaContent.query.filter_by(transcription_id=transcription.id).all()
+        gpt4_contents = [{'content_type': content_type, 'content': content}
+                         for content in social_media_contents
+                         for content_type, content in zip(['tweet', 'tweet_thread', 'linkedin_post'], 
+                                                          [content.tweet_gpt4, content.tweet_thread_gpt4, content.linkedin_post_gpt4])]
+        transcriptions_data.append({
+            'name': transcription.name,
+            'yt_url': transcription.yt_url,
+            'notes_url_gpt4': transcription.notes_url_gpt4,
+            'gpt4_contents': gpt4_contents
+        })
+        
+    return render_template('example_dashboard.html', transcriptions=transcriptions_data)
 
 
 @app.route('/download/<path:filename>')
@@ -104,8 +214,16 @@ def dashboard2():
         transcriptions = Transcription.query.all()
     return render_template('dashboard2.html', transcriptions=transcriptions)
 
+@app.route('/user_dashboard', methods=['GET'])
+@login_required
+def user_dashboard():
+    user_id = current_user.get_id()
+    transcriptions = Transcription.query.filter_by(user_id=user_id).all()
+    return render_template('user_dashboard.html', transcriptions=transcriptions)
+
+
 @app.route('/notes/<record_id>', methods=['GET', 'POST'])
-@auth.login_required
+@login_required
 def notes(record_id):
     # Get the transcription record
     transcription = Transcription.query.get(record_id)
@@ -122,11 +240,21 @@ def notes(record_id):
     # If the form was submitted, generate the selected types of social media content
     if request.method == 'POST':
         content_types = request.form.getlist('content_types')
+
+        # Check user's tokens
+        user = User.query.get(current_user.id)
+        if user.tokens < 1:
+            flash ('You are out of tokens')
+            return redirect(url_for('user_dashboard'))  # or another page
         
         try:
             logging.info(f'Adding generate_social_media_content job for record_id: {record_id}')
             job = q.enqueue(generate_social_media_content, record_id, content_types)
             logging.info(f'Added generate_social_media_content job with id: {job.id}')
+
+            # Decrease user's tokens
+            user.tokens -= 1
+            db.session.commit()
         except Exception as e:
             logging.error(f"Error generating social media content: {str(e)}")
             return abort(400, f"Error generating social media content: {str(e)}")
@@ -137,7 +265,7 @@ def notes(record_id):
     social_media_content = SocialMediaContent.query.filter_by(transcription_id=record_id).first()
 
     if social_media_content:
-        fields = ['tweet_gpt35', 'tweet_gpt4', 'tweet_thread_gpt35', 'tweet_thread_gpt4', 'linkedin_post_gpt35', 'linkedin_post_gpt4']
+        fields = ['tweet_gpt4', 'tweet_thread_gpt4', 'linkedin_post_gpt4']
         for field in fields:
             field_content = getattr(social_media_content, field)
             if field_content:
