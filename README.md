@@ -33,7 +33,7 @@ pip install -r requirements.txt
 
 ## Environment Variables
 
-The application needs several environment variables to function correctly. These variables include the Flask application name, the database URL, the OpenAI API key, AWS credentials, and others.
+The application needs several environment variables to function correctly. These variables include the database URL, the OpenAI API key, AWS credentials, and others.
 
 You will find an `example.env` file in the root of the repository. Make a copy of this file, name it `.env`, and fill in the values for each environment variable:
 
