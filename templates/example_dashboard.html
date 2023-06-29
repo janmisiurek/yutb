@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Example Dashboard
+{% endblock %}
+
+{% block content %}
+<body>
+    <div class="container">
+        <h1>Example Dashboard</h1>
+
+        <div>
+            {% for transcription in transcriptions %}
+            <h2>{{ transcription.name }}</h2>
+            <p>URL YouTube: <a href="{{ transcription.yt_url }}">{{ transcription.yt_url }}</a></p>
+            
+
+            <div class="embed-responsive embed-responsive-16by9">
+                <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/{{ transcription.yt_url.split('=')[1] }}" allowfullscreen></iframe>
+            </div>
+
+            <h3>Social Media Content</h3>
+            {% for item in transcription.gpt4_contents %}
+                <div class="text-center" style="max-width: 400px; margin: 0 auto; padding: 20px; border: 2px solid #1DA1F2; border-radius: 15px; background-color: #FFFFFF; font-size: 1.2em; color: #000000;">
+                <h3>{{ item.content_type|replace('_', ' ') }}</h3>
+                <br>
+                    <p>{{ item.content|replace('\n', '<br>')|safe }}</p>
+                </div>
+                <br>
+            {% endfor %}
+            {% endfor %}
+        </div>
+
+        <p>
+            <a href="{{ url_for('dashboard2') }}">Powrót do dashboard</a>
+        </p>
+    </div>
+</body>
+{% endblock %}

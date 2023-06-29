@@ -146,7 +146,7 @@ def index():
             logging.error(f"Error downloading, transcribing, and creating notes: {str(e)}")
             return abort(400, f"Error downloading, transcribing, and creating notes: {str(e)}")
 
-        flash("Generation in progress")
+        flash("Generation in progress, its can up to few minutes.")
         return redirect(url_for('user_dashboard'))
     
     return render_template('index.html')
@@ -163,6 +163,27 @@ def job_status(job_id):
     else:
         return "Job is still in progress"
 
+@app.route('/example_dashboard')
+def example_dashboard():
+    example_transcriptions_ids = [1, 3, 2] 
+
+    transcriptions = Transcription.query.filter(Transcription.id.in_(example_transcriptions_ids)).all()
+    transcriptions_data = []
+
+    for transcription in transcriptions:
+        social_media_contents = SocialMediaContent.query.filter_by(transcription_id=transcription.id).all()
+        gpt4_contents = [{'content_type': content_type, 'content': content}
+                         for content in social_media_contents
+                         for content_type, content in zip(['tweet', 'tweet_thread', 'linkedin_post'], 
+                                                          [content.tweet_gpt4, content.tweet_thread_gpt4, content.linkedin_post_gpt4])]
+        transcriptions_data.append({
+            'name': transcription.name,
+            'yt_url': transcription.yt_url,
+            'notes_url_gpt4': transcription.notes_url_gpt4,
+            'gpt4_contents': gpt4_contents
+        })
+        
+    return render_template('example_dashboard.html', transcriptions=transcriptions_data)
 
 
 @app.route('/download/<path:filename>')
@@ -202,7 +223,7 @@ def user_dashboard():
 
 
 @app.route('/notes/<record_id>', methods=['GET', 'POST'])
-@auth.login_required
+@login_required
 def notes(record_id):
     # Get the transcription record
     transcription = Transcription.query.get(record_id)
@@ -219,11 +240,21 @@ def notes(record_id):
     # If the form was submitted, generate the selected types of social media content
     if request.method == 'POST':
         content_types = request.form.getlist('content_types')
+
+        # Check user's tokens
+        user = User.query.get(current_user.id)
+        if user.tokens < 1:
+            flash ('You are out of tokens')
+            return redirect(url_for('user_dashboard'))  # or another page
         
         try:
             logging.info(f'Adding generate_social_media_content job for record_id: {record_id}')
             job = q.enqueue(generate_social_media_content, record_id, content_types)
             logging.info(f'Added generate_social_media_content job with id: {job.id}')
+
+            # Decrease user's tokens
+            user.tokens -= 1
+            db.session.commit()
         except Exception as e:
             logging.error(f"Error generating social media content: {str(e)}")
             return abort(400, f"Error generating social media content: {str(e)}")
@@ -234,7 +265,7 @@ def notes(record_id):
     social_media_content = SocialMediaContent.query.filter_by(transcription_id=record_id).first()
 
     if social_media_content:
-        fields = ['tweet_gpt35', 'tweet_gpt4', 'tweet_thread_gpt35', 'tweet_thread_gpt4', 'linkedin_post_gpt35', 'linkedin_post_gpt4']
+        fields = ['tweet_gpt4', 'tweet_thread_gpt4', 'linkedin_post_gpt4']
         for field in fields:
             field_content = getattr(social_media_content, field)
             if field_content:
