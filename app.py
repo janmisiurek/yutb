@@ -217,8 +217,10 @@ def dashboard2():
 @app.route('/user_dashboard', methods=['GET'])
 @login_required
 def user_dashboard():
+
     user_id = current_user.get_id()
     transcriptions = Transcription.query.filter_by(user_id=user_id).all()
+    
     return render_template('user_dashboard.html', transcriptions=transcriptions)
 
 
@@ -229,6 +231,10 @@ def notes(record_id):
     transcription = Transcription.query.get(record_id)
     if not transcription:
         abort(404, description="Record not found")
+
+    # Check if the current user is the owner of the transcription
+    if current_user.id != transcription.user_id:
+        abort(403, description="You do not have permission to access this content")
 
     # Download the notes from S3
     local_path_gpt4 = os.path.join(tempfile.gettempdir(), f"{record_id}_gpt4.txt")
