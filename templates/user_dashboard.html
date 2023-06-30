@@ -14,10 +14,12 @@
         </thead>
         <tbody>
             {% for transcription in transcriptions %}
-                <tr>
-                    <td><a href="{{ url_for('notes', record_id=transcription.id) }}">{{ transcription.name }}</a></td>
-                    <td><a href="{{ transcription.yt_url }}" target="_blank">Watch on YouTube</a></td>
-                </tr>
+                {% if transcription.transcript_url != None %}
+                    <tr>
+                        <td><a href="{{ url_for('notes', record_id=transcription.id) }}">{{ transcription.name }}</a></td>
+                        <td><a href="{{ transcription.yt_url }}" target="_blank">Watch on YouTube</a></td>
+                    </tr>
+                {% endif %}
             {% endfor %}
         </tbody>
     </table>
